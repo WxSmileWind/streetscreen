@@ -1,24 +1,8 @@
-# streetscreen
+# 镇街大屏
 
-## Project setup
+## 项目创建
 ```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
+2020/8/3
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
