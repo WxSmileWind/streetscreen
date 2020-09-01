@@ -18,6 +18,10 @@ const routes = [
   {
     path: '/404',
     component: ()=> import("../components/NotFound.vue")
+  },
+  {
+    path:'/nineSquared',
+    component: ()=> import("../views/NineSquared.vue")
   }
 ];
 
