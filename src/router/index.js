@@ -23,6 +23,10 @@ const routes = [
     path:'/nineSquared',
     component: ()=> import("../views/NineSquared.vue")
   }
+  ,{
+    path: '/NineSquaredChild/:url',
+    component: ()=> import("../components/NineSquaredChild.vue")
+  }
 ];
 
 const router = new VueRouter({
