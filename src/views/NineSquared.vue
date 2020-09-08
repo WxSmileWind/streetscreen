@@ -62,13 +62,13 @@
                  </el-card>
                 </el-col>
            </el-row>-->
-          
+         <div> 
         <el-card v-for="(item,index) in bigScreenList"
                  :key="index"
                  :body-style="cardstyle"
                  style="cursor: pointer;"
                  @click.native="bigscreenClick(item.link)">
-               <img :src="item.imageSrc">
+               <img :src="imgsrcBefore + item.imageSrc">
             <div style="padding: 9px;">
                     <span>{{item.name}}</span>
                 <div class="bottom clearfix">
@@ -76,12 +76,19 @@
                 </div>
             </div>
         </el-card>
+    </div>
 
 
     </div>
 </template>
 
 <script>
+    //接口调用文件
+    import index from '@/api/index';
+    //接口配置文件
+    import {Api} from '@/api/api';
+    import {Message} from "element-ui";
+
     export default {
         name: "NineSquared",
         data(){
@@ -89,8 +96,9 @@
                 currentDate: new Date(),
                 screenWidth: document.body.clientWidth,
                 screenHeight: document.body.clientHeight,
+                imgsrcBefore:'http://10.68.129.154:8112',
                 bigScreenList: [
-                    {
+                    /*{
                         name: '可视化大屏',
                         des: '可视化大屏提供中心部分工作重点内容一览表',
                         imageSrc:require('../assets/imgs/BigScreenImages/keshi.png'),
@@ -102,13 +110,13 @@
                         imageSrc:require('../assets/imgs/BigScreenImages/yiqing.png'),
                         link: 'http://10.68.129.154:8119/BigScreen/Home/Contact?area=1905f614-ea89-44fc-9f7c-76b4602aea67'
                     },
-                    /*{
+                    /!*{
                         name: '两小排摸',
                         des: '',
                         imageSrc:require('../assets/imgs/BigScreenImages/yiqing.png'),
                         link: 'http://10.68.129.154:8119/BigScreen/Home/Contact?area=1905f614-ea89-44fc-9f7c-76b4602aea67'
                     },
-                    */
+                    *!/
 
                     {
                         name: '矛盾纠纷大屏',
@@ -145,7 +153,7 @@
                         des: '查看典型事件的预览及分析内容',
                         imageSrc:require('../assets/imgs/BigScreenImages/SSJC.png'),
                         link: 'http://10.68.129.138/yunwei/dp/indexmap_static.html'
-                    }
+                    }*/
                 ],
                 bdata:[1,2,3,4,5,6],
                 cardstyle: {padding: '0px', float: 'left', width: '23vw', margin: '0px'},
@@ -164,6 +172,9 @@
                     hasPreviousPage: true // 有上一页？
                 }
             }
+        },
+        async created() {
+           this.binddata();
         },
         mounted() {
             const that = this;
@@ -202,6 +213,15 @@
             },
             pageCurrentChange(){
                 console.log("1");
+            },
+            async binddata(){
+                let {data:eventslist} = await index.fetchData_get(Api.sc_list,null
+                    //{}null
+                    );
+                this.bigScreenList = eventslist;
+                // let {msg:eventslist}
+                //Message.info('接口返回内容：'+eventslist);
+                console.log("++++++++++++eventslist:",eventslist);
             }
         }
     }
@@ -211,6 +231,7 @@
     .el-card__body img{
         height: 20vh !important;
         width: 23vw;
+
     }
     .el-card{
         background-color: #1e244c;
@@ -333,6 +354,7 @@
 
         float:left;
         width:23vw;
+        height:26vh;
         margin: 1.4vw 0.9vw;
         border-radius: 5vh;
 
