@@ -410,6 +410,10 @@
 </template>
 <script>
     import Tiandt from "../components/tiandt";
+    //接口调用文件
+    import index from '@/api/index';
+    //接口配置文件
+    import {Api} from '@/api/api';
     export default {
         name: "index",
         //引入子组件
@@ -418,6 +422,7 @@
         },
         data(){
             return {
+                datalist:{},
                 screenWidth: document.body.clientWidth,
                 screenHeight:document.body.clientHeight,
                 dbsj: 15,//待办事件数
@@ -499,6 +504,8 @@
                 wgyVWidth:'0%',
                 nowdate:'',//右上角日期显示
                 chartsrk:null, //辖区概况下的人口统计
+                chartfw:null, //辖区概况下的房屋统计
+                chartqy:null, //辖区概况下的企业统计
                 chartzjkh:null,//日常考核下的镇街考核统计
                 chartznbmkh:null,//日常考核下的职能部门考核统计
                 chartwtjj:null,//问题聚焦统计
@@ -562,6 +569,10 @@
             screenWidth(val,newval){
                   //人口统计重绘
                   this.chartsrk.resize();
+                  //房屋统计重绘
+                  this.chartfw.resize();
+                  //企业统计重绘
+                  this.chartqy.resize();
                   //镇街考核统计重绘
                   this.chartzjkh.resize();
                   //职能部门统计重绘
@@ -574,13 +585,29 @@
             screenHeight(val,newval){
                 //人口统计重绘
                 this.chartsrk.resize();
+                //房屋统计重绘
+                this.chartfw.resize();
+                //企业统计重绘
+                this.chartqy.resize();
                 //镇街考核统计重绘
                 this.chartzjkh.resize();
                 //职能部门统计重绘
                 this.chartznbmkh.resize();
             }
         },
-        created() {
+       async created() {
+            // let {data:data1} = await index.fetchData_post(Api.test,{
+            //     AreaId:'001'
+            //     }
+            // );
+            // this.datalist=data1;
+
+
+            //JSON.parse()
+           //  console.log("++++++++++++data1:",JSON.stringify(data1));
+           // console.log("++++++++++++datalist:",this.datalist);
+           // console.log("++++++++++++datalist.areaCode:",this.datalist.areaCode);
+           // this.bigScreenList = eventslist;
         },
         mounted() {
             this.getNow();
@@ -588,6 +615,11 @@
             this.wgyV=2;
             //绑定人口
             this.bindrk();
+            //绑定房屋
+            this.bindfw();
+            //绑定企业
+            this.bindqy();
+
             //绑定镇街考核
             this.bindStreetkh();
             //绑定职能部门考核
@@ -692,14 +724,13 @@
                                         formatter:function(param){
                                             // eslint-disable-next-line no-console
                                             console.log('++++++++++tooltip:',param);
-
                                             //this.arr.find((item) => item.id === obj.getAttribute('data-id'));
-
                                             return param.name;
                                         }
                                     },
-                                    formatter: function (name) {
-                                        return name;
+                                    formatter: function (param) {
+                                        console.log("[人口]++++++param:",param);
+                                        return param;
                                     },
                                     data:['境外人员', '外来人员', '户籍人口']
                                 },
@@ -713,37 +744,6 @@
                                     data:['骨干对象', '服务对象', '管控对象']
                                 }
                             ],
-
-                            // legend: {
-                            //     orient: 'vertical',
-                            //     // 设置文本为红色
-                            //     textStyle: {
-                            //         color: '#fff',
-                            //         padding:[0,0,0,0],
-                            //         height:20,
-                            //         fontSize:12
-                            //     },
-                            //     left: 0,
-                            //     top:0,
-                            //
-                            //     data: ['境外人员', '外来人员', '户籍人口', '骨干对象', '服务对象', '管控对象'],
-                            //
-                            //     rich:{
-                            //         a:{
-                            //             align:'left',
-                            //             color:'#77899c',
-                            //             padding:[0,0,0,10],
-                            //         },
-                            //         b:{
-                            //             align:'right',
-                            //             color:'#eb3a53',
-                            //         },
-                            //         c:{
-                            //             align:'right',
-                            //             color:'#4ed139',
-                            //         },
-                            //     }
-                            // },
                             series: [
                                 {
 
@@ -754,8 +754,9 @@
                                     top:10,
                                     left:'center',
                                     label: {
-                                        show:false,
-                                        position: 'inner'
+                                        show:true,
+                                        formatter: '{c}',
+                                        position: 'inside'
                                     },
                                     // labelLine: {
                                     //     show: false
@@ -774,8 +775,9 @@
                                     top:10,
                                     left:'center',
                                     label: {
-                                        show:false,
-                                        position: 'inner'
+                                        show:true,
+                                        formatter: '{b}:{c}',
+                                        position: 'outside'
                                     },
                                     // labelLine: {
                                     //     show: false
@@ -788,6 +790,146 @@
                                     ]
                                 }
                             ]
+                        }
+                    );
+                });
+            },
+            //绑定房屋数据
+            bindfw(){
+                this.$nextTick(()=> {
+                    //辖区概况-人口
+                    let echarts = require('echarts');
+                    // 基于准备好的dom，初始化echarts实例
+                    this.chartfw = echarts.init(document.getElementById('xqgk_content_fw'));
+                    // 绘制图表
+                    this.chartfw.setOption(
+                        {
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                }
+                            },
+                            legend: {
+                                data: ['危房', '出租房', '拆迁房']
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                top:'3%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: {
+                                type: 'value',
+                                nameTextStyle:{
+                                    color:'#94d4f8',
+                                    fontStyle:'normal',
+                                    fontSize:12,
+                                },
+                                axisLabel: {
+                                    textStyle: {
+                                        color: '#94d4f8',
+                                        fontSize:10,
+                                    }
+                                }
+                            },
+                            yAxis: {
+                                type: 'category',
+                                nameTextStyle:{
+                                    color:'#94d4f8',
+                                    fontStyle:'normal',
+                                    fontSize:12,
+                                },
+                                axisLabel: {
+                                    textStyle: {
+                                        color: '#94d4f8',
+                                        fontSize:14,
+                                    }
+                                },
+                                data: ['危房', '出租房', '拆迁房'],
+                            },
+                            series:   {
+                                name: '房屋统计',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    show: true,
+                                    formatter: '{c}',
+                                    position: 'insideRight'
+                                },
+                                data: [150, 212, 201]
+                            },
+                        }
+                    );
+                });
+            },
+            //绑定企业数据
+            bindqy(){
+                this.$nextTick(()=> {
+                    //辖区概况-人口
+                    let echarts = require('echarts');
+                    // 基于准备好的dom，初始化echarts实例
+                    this.chartqy = echarts.init(document.getElementById('xqgk_content_qy'));
+                    // 绘制图表
+                    this.chartqy.setOption(
+                        {
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                }
+                            },
+                            legend: {
+                                data: ['商事主体', '机关单位', '社会组织']
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                top:'3%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: {
+                                type: 'value',
+                                nameTextStyle:{
+                                    color:'#94d4f8',
+                                    fontStyle:'normal',
+                                    fontSize:12,
+                                },
+                                axisLabel: {
+                                    textStyle: {
+                                        color: '#94d4f8',
+                                        fontSize:10,
+                                    }
+                                }
+                            },
+                            yAxis: {
+                                type: 'category',
+                                nameTextStyle:{
+                                    color:'#94d4f8',
+                                    fontStyle:'normal',
+                                    fontSize:12,
+                                },
+                                axisLabel: {
+                                    textStyle: {
+                                        color: '#94d4f8',
+                                        fontSize:14,
+                                    }
+                                },
+                                data: ['商事主体', '机关单位', '社会组织'],
+                            },
+                            series:   {
+                                name: '企业统计',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    show: true,
+                                    formatter: '{c}',
+                                    position: 'insideRight'
+                                },
+                                data: [542, 23, 189]
+                            },
                         }
                     );
                 });
@@ -971,6 +1113,7 @@
                                 colorLightness: [0, 1]
                             }
                         },
+                        color:['#d56e6b','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
                         series: [
                             {
                                 name: '问题聚焦',
@@ -978,6 +1121,7 @@
                                 radius: '75%',
                                 center: ['50%', '50%'],
                                 data: [
+                                    {value: 200, name: '排摸湖北籍人员'},
                                     {value: 335, name: '电瓶车充电'},
                                     {value: 310, name: '拆迁问题'},
                                     {value: 170, name: '精神病异常'},
@@ -997,15 +1141,13 @@
                                     length: 10,
                                     length2: 20
                                 },
-                                itemStyle: {
-                                    color: '#c23531',
-                                    shadowBlur: 200,
-                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                },
-
+                                // itemStyle: {
+                                //     color: '#c23531',
+                                //     shadowBlur: 200,
+                                //     shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                // },
                                 animationType: 'scale',
                                 animationEasing: 'elasticOut'
-
                             }
                         ]
                     });
@@ -1079,7 +1221,9 @@
                 this.infoshow=true;
                 this.infotitle="事件详情 ";
                 this.infourl="";
-                this.infourl="http://10.19.181.153/grid/notice/f.show?id="+row.id+"&random="+Math.floor(Math.random()*450001);
+                // console.log()
+               // /grid/event/show?id=8a9335c87458af4501747ae898bb11ac&flag=all
+                this.infourl="http://10.19.181.153/grid/event/show?id="+row.id+"&random="+Math.floor(Math.random()*450001);
             },
             //待阅读通知公告弹出框
             showtzgg(){
@@ -1249,8 +1393,8 @@
             height:19vh;
             margin-top:5px;
             .full{
-                width:100%;
-                height:100%;
+                width:24vw;
+                height:19vh;
             }
         }
         .xqgk_wg_content{

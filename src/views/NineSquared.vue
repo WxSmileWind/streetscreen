@@ -1,81 +1,33 @@
 <template>
     <div class="totaldiv">
-        <!--
-        <div class="title">
-            <div class="center">
-                <img src="../assets/imgs/centerbackground.png" width="50" height="50"/>
-                <span>宁波市社会治理工作中心大屏</span>
-            </div>
-        </div>
-        -->
         <div class="title"  >
-            <!--<img src="../assets/imgs/BigScreenImages/jcdsj_logo.gif" style="width: 100vw;margin: auto;
-            vertical-align: middle;display: block;height: auto"/>
-            -->
             <div class="center">
                 <img src="../assets/imgs/centerbackground.png" width="50" height="50"/>
-                <span>宁波市社会治理工作中心大屏</span>
+                <span>宁波市社会治理工作中心大屏 </span>
             </div>
         </div>
 
-        <div style="clear: both;" >
+        <div style="clear: both;" ></div>
 
-        </div>
-        <!--<ul>
-            <li v-for="(item,index) in bigScreenList" :key="index" @click="bigscreenClick(item.link)">
-                <span>{{item.name}}</span>
-            </li>
-        </ul>
-        -->
-        <!--大屏列表
-        <div class="centerContent" justify="center" >
-            <el-col :span="6" v-for="(item,index) in bigScreenList" :key="index" :offset="1"   >
-                <el-card :body-style="{ padding: '0px'}" shadow="hover" style="margin: 4px 6px;"  @click="bigscreenClick(item.link)">
-                    <div style="padding: 6px;height: 100%;width: 100%;">
-                        <div>
-                            <div><b size="5" class="textAlign">{{item.name}}</b></div>
+        <div> 
+            <!-- 页码切换 -->
+            <el-carousel  trigger="click" height="100vh" :autoplay="false">
+                <el-carousel-item  v-for="(item,index) in eventimgitemsfor" :key="index" >
+                    <el-card v-for="(items,index) in item.itemlist"
+                             :key="index"
+                             :body-style="cardstyle"
+                             style="cursor: pointer;"
+                             @click.native="bigscreenClick(items.link)">
+                           <img :src="imgsrcBefore + items.imageSrc">
+                        <div style="padding: 9px;">
+                                <span>{{items.name}}</span>
+                            <div class="bottom clearfix">
+                                <time class="time">{{items.des}}</time>
+                            </div>
                         </div>
-                        <div style="position: relative;top: 30px;">
-                            <img src="../assets/imgs/centerbackground.png" class="image"/>
-                            <div style="text-align: left;"><i class="el-icon-time"></i>{{item.des}}</div>
-                        </div>
-                        <div style="position: relative;top: 45px;">
-                            &nbsp;&nbsp;<i class="el-icon-view"></i><span>{{item.name}}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <el-button type="text"><b size="4">查看</b></el-button>
-                        </div>
-                    </div>
-                </el-card>
-            </el-col>
-        </div>
-        -->
-
-        <!--   <el-row>
-                <el-col :span="6"  v-for="(item,index) in bigScreenList" :key="index"  :offset="1" >
-                 <el-card :body-style="{ padding: '0px' }" style="cursor: pointer;" @click.native="bigscreenClick(item.link)">
-                  <img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zaGFkb3cuZWxlbWVjZG4uY29tL2FwcC9lbGVtZW50L2hhbWJ1cmdlci45Y2Y3YjA5MS01NWU5LTExZTktYTk3Ni03ZjRkMGIwN2VlZjYucG5n">
-                  <div style="padding: 14px;">
-                   <span>{{item.name}}</span>
-                   <div class="bottom clearfix">
-                    <time class="time">{{item.des}}</time>
-                   </div>
-                  </div>
-                 </el-card>
-                </el-col>
-           </el-row>-->
-         <div> 
-        <el-card v-for="(item,index) in bigScreenList"
-                 :key="index"
-                 :body-style="cardstyle"
-                 style="cursor: pointer;"
-                 @click.native="bigscreenClick(item.link)">
-               <img :src="imgsrcBefore + item.imageSrc">
-            <div style="padding: 9px;">
-                    <span>{{item.name}}</span>
-                <div class="bottom clearfix">
-                    <time class="time">{{item.des}}</time>
-                </div>
-            </div>
-        </el-card>
+                    </el-card>
+                </el-carousel-item>
+            </el-carousel>
     </div>
 
 
@@ -155,22 +107,10 @@
                         link: 'http://10.68.129.138/yunwei/dp/indexmap_static.html'
                     }*/
                 ],
+                eventimgitemsfor:[],//用于分页
                 bdata:[1,2,3,4,5,6],
+                isshow:true,
                 cardstyle: {padding: '0px', float: 'left', width: '23vw', margin: '0px'},
-                // 分页插件
-                pageform: {
-                    total: 200, // 总条目数
-                    pages: 5,  // 总页数
-                    pageNum: 1, // 当前的页码
-                    pageSizes: [5, 10, 15, 20, 30, 40, 50], // select选项设置：条/页
-                    pageSize: 5, // 每页显示条目个数
-                    navigateFirstPage: 1, // 上一页
-                    navigateLastPage: 3, // 下一页
-                    lastPage: false, // 是最后一页？
-                    firstPage: false, // 是第一页？
-                    hasNextPage: true, // 有下一页？
-                    hasPreviousPage: true // 有上一页？
-                }
             }
         },
         async created() {
@@ -183,6 +123,9 @@
                 window.screenHeight = document.body.clientHeight;
                 that.screenWidth = window.screenWidth;
                 that.screenHeight= window.screenHeight;
+
+            }
+            if(!this.isshow){
 
             }
         },
@@ -219,6 +162,49 @@
                     //{}null
                     );
                 this.bigScreenList = eventslist;
+                //分页数据变量
+                this.eventimgitemsfor=[];
+                //判断是否分页
+                if(this.bigScreenList.length >0 && this.bigScreenList.length <=12)
+                {
+                    let itemlist=[];
+                    this.bigScreenList.forEach(item=>{
+                        itemlist.push({
+                            name:item.name,
+                            imageSrc:item.imageSrc,
+                            link:item.link,
+                        });
+                    });
+                    this.eventimgitemsfor.push({
+                        itemlist:itemlist
+                    });
+                    this.isshow = false;
+                }else{//超过一页
+                    let pcount=parseInt(this.bigScreenList.length/12);
+                    console.log("++++++++++++pcount：",pcount);
+                    if(this.bigScreenList.length%12!==0)
+                    {
+                        pcount=pcount+1;
+                    }
+                    for(let i=0;i<pcount;i++)
+                    {
+                        let itemlist=[];
+                        let startindex=i*12;
+                        let endindex=i*12+11;
+                        this.bigScreenList.slice(startindex,endindex+1).forEach(
+                            item=>{
+                                itemlist.push({
+                                    name:item.name,
+                                    imageSrc:item.imageSrc,
+                                    link:item.link,
+                                });
+                            }
+                        )
+                        this.eventimgitemsfor.push({
+                            itemlist:itemlist
+                        });
+                    }
+                }
                 // let {msg:eventslist}
                 //Message.info('接口返回内容：'+eventslist);
                 console.log("++++++++++++eventslist:",eventslist);
@@ -238,6 +224,10 @@
         color:#bcbed0 !important;
         border-color:#5f5454;
         //border-radius: 5vh;
+    }
+    .el-carousel__arrow {
+        background-color: rgb(30, 36, 76);
+        color: #f9f9f9;
     }
 </style>
 
@@ -304,12 +294,6 @@
             cursor: pointer;
         }
     }
-
-
-
-
-
-
 
     .textAlign{
         text-align: center;

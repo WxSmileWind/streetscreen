@@ -6,9 +6,11 @@ const baseURL = "http://10.68.129.154:8119/BigScreen";
 //const baseURL_FWDT = "http://115.238.154.91:8085/kjcy-servicehall/";
 
 const basetestURL = "http://localhost:56316/BigScreen";
+const testURL = "http://10.68.129.154:8115/";
 
 
 export const Api = {
         sc_list:baseURL+"/CenterBCManage1/GetLists",               //获得大屏列表
+        test:testURL+"/gridevent/selectbasearea"
 };
 window.Api = Api;

@@ -64,7 +64,7 @@ service.interceptors.response.use(
     response => {
        // console.log();
         if(response.status === 200){
-            if (response.data.code == 200) {
+            if (response.data.code == 200||response.data.code == 0) {
                 return response.data;
             }
             else{
