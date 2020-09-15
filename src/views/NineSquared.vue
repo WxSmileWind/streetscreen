@@ -3,7 +3,7 @@
         <div class="title"  >
             <div class="center">
                 <img src="../assets/imgs/centerbackground.png" width="50" height="50"/>
-                <span>宁波市社会治理工作中心大屏</span>
+                <span>宁波市社会治理工作中心大屏 </span>
             </div>
         </div>
 
