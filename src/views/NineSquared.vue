@@ -46,6 +46,7 @@
         data(){
             return {
                 currentDate: new Date(),
+
                 screenWidth: document.body.clientWidth,
                 screenHeight: document.body.clientHeight,
                 imgsrcBefore:'http://10.68.129.154:8112',

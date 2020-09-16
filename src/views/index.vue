@@ -339,7 +339,6 @@
                 </el-table>
             </div>
         </el-dialog>
-
         <!--待阅读通知公告 弹出框-->
         <el-dialog  element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading"
@@ -391,7 +390,6 @@
                 </el-table>
             </div>
         </el-dialog>
-
         <!--待办事件+通知公告详情 弹出框-->
         <el-dialog  element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading"
@@ -405,7 +403,6 @@
 
             </iframe>
         </el-dialog>
-
     </div>
 </template>
 <script>
@@ -637,7 +634,7 @@
 
             }
             //初始化画镇街行政区划
-            this.$refs.tiandt.initmap('ZBS');
+            this.$refs.tiandt.initmap('001001','海曙区');
 
         },
         methods:{
@@ -1206,7 +1203,8 @@
                 }
 
                 // 调用天地图子组件中的方法
-                this.$refs.tiandt.setmarker(MarkerList);
+                //this.$refs.tiandt.setmarker(MarkerList);
+                this.$refs.tiandt.changeThemeEvent("90ff1917-9560-4ec1-a0d6-184326e1af6d","");
             },
             //点击待办事件弹出框
             showdbsj(){
