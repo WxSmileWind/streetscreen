@@ -62,15 +62,15 @@
                 <div class="xqgk_wg_content">
                     <div class="full">
                         <span style="display:inline-block;color:#93bdf6;">执行网格:</span><span
-                            style="display:inline-block;color:#ffff00;">12</span>
+                            style="display:inline-block;color:#ffff00;">{{wg.zxwg}}</span>
                     </div>
                     <div class="full">
                         <span style="display:inline-block;color:#93bdf6;">非执行网格:</span><span
-                            style="display:inline-block;color:#ffff00;">12</span>
+                            style="display:inline-block;color:#ffff00;">{{wg.fzxwg}}</span>
                     </div>
                     <div class="full">
                         <span style="display:inline-block;color:#93bdf6;">网格员数量:</span><span
-                            style="display:inline-block;color:#ffff00;">12</span>
+                            style="display:inline-block;color:#ffff00;">{{wg.wgsum}}</span>
                     </div>
                 </div>
                 <!--男女网格员显示比例-->
@@ -108,15 +108,15 @@
             <!--logo区域-->
             <div class="c_logo">
                      <span class="title">
-                         海晏综合指挥平台(招宝山街道)
+                         海晏综合指挥平台({{orgname}})
                      </span>
             </div>
-            <!--通知-->
+            <!--通知1-->
             <div class="c_nos">
                 <div class="c_nos_left">
                     通知：
                 </div>
-                <div class="c_nos_right">
+                <div class="c_nos_right" style="text-align:left;">
                     <van-notice-bar left-icon="volume-o" :scrollable="false">
                         <van-swipe
                                 vertical
@@ -167,37 +167,37 @@
                 <div class="c_bottom_item">
                         <img src="../assets/imgs/img_wgbs.png" class="c_bottom_item_img" />
                         <span class="c_bottom_item_name">未关闭数</span>
-                        <span class="c_bottom_item_value">300</span>
+                        <span class="c_bottom_item_value">{{wgbs}}</span>
                 </div>
                 <div class="c_bottom_item">
                     <img src="../assets/imgs/img_yqs.png" class="c_bottom_item_img" />
                     <span class="c_bottom_item_name">逾期数</span>
-                    <span class="c_bottom_item_value">50</span>
+                    <span class="c_bottom_item_value">{{yqs}}</span>
                 </div>
                 <div class="c_bottom_item">
                     <img src="../assets/imgs/img_ths.png" class="c_bottom_item_img" />
                     <span class="c_bottom_item_name">退回数</span>
-                    <span class="c_bottom_item_value">50</span>
+                    <span class="c_bottom_item_value">{{ths}}</span>
                 </div>
                 <div class="c_bottom_item">
                     <img src="../assets/imgs/img_wzss.png" class="c_bottom_item_img" />
                     <span class="c_bottom_item_name">未在线数</span>
-                    <span class="c_bottom_item_value">300</span>
+                    <span class="c_bottom_item_value">{{wzss}}</span>
                 </div>
                 <div class="c_bottom_item">
                     <img src="../assets/imgs/img_wqzs.png" class="c_bottom_item_img" />
                     <span class="c_bottom_item_name">未签注数</span>
-                    <span class="c_bottom_item_value">50</span>
+                    <span class="c_bottom_item_value">{{wqzs}}</span>
                 </div>
                 <div class="c_bottom_item">
                     <img src="../assets/imgs/img_lqsjs.png" class="c_bottom_item_img" />
                     <span class="c_bottom_item_name">临期事件数</span>
-                    <span class="c_bottom_item_value">50</span>
+                    <span class="c_bottom_item_value">{{lqsjs}}</span>
                 </div>
                 <div class="c_bottom_item">
                     <img src="../assets/imgs/img_zfwwcs.png" class="c_bottom_item_img" />
                     <span class="c_bottom_item_name" style="font-size:0.8rem;line-height: 2vh; ">月度走访任务未完成数</span>
-                    <span class="c_bottom_item_value">50</span>
+                    <span class="c_bottom_item_value">{{ydzfwwcs}}</span>
                 </div>
             </div>
         </div>
@@ -211,7 +211,7 @@
                 <img src="../assets/imgs/date_right_bottom.png" class="right_bottom"/>
                 <div class="r_date_content">
                     <img class="logo" src="../assets/imgs/cal.png" style="height: 3vh;vertical-align: middle;"/>
-                    {{nowdate}}
+                    <span style="text-indent: 20px;display: inline-block;font-weight:bolder;">{{nowdate}}</span>
                 </div>
             </div>
             <!--今日事件-->
@@ -221,11 +221,23 @@
                     <span class="icon_title" style="">今日事件</span>
                 </div>
                 <div class="content">
-                    <el-carousel height="27vh">
-                        <el-carousel-item v-for="item in 4" :key="item">
-                            <img src="../assets/imgs/img_1.jpg"/>
-
-                            <h3>{{ item }}</h3>
+                    <el-carousel height="27vh" arrow="always" indicator-position="none">
+                        <el-carousel-item v-for="(item,index) in eventslist" :key="index" >
+                             <div style="width:100%;height:27vh;float:left;position: relative; border-radius: 10px;cursor:pointer;">
+                                 <el-image
+                                         @click="showeventinfo(item.id)"
+                                         style="width: 100%; height:27vh; border-radius: 10px; display: block;"
+                                         :src="item.src"
+                                 ></el-image>
+                                 <div  style="cursor:pointer; position: absolute;height:30px;width:100%;background-color: black;bottom:0px;line-height: 30px;color:white; opacity: 0.8;">
+                                     {{item.title}}
+                                 </div>
+                                 <div style="position:absolute;height:30px;width:160px;top:0px;left:0px;background-color: black;opacity: 0.8; line-height:30px; color:white;">
+                                     {{item.date}}
+                                 </div>
+                             </div>
+                            <!--<img src="../assets/imgs/img_1.jpg" style="width:100%;height:100%;"/>
+                            <h3 style="display: block;height:30px;line-height:30px; position:absolute; background-color:black;color:white;">{{ item }}</h3>-->
                         </el-carousel-item>
                     </el-carousel>
                 </div>
@@ -266,7 +278,6 @@
                 </div>
             </div>
         </div>
-
         <!--待办事件列表  弹出框-->
         <el-dialog  element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading"
@@ -400,7 +411,30 @@
                     :modal-append-to-body='false'
                     width="1000px" >
             <iframe width="100%" height="700px" :src="infourl">
-
+            </iframe>
+        </el-dialog>
+        <!--事件详情 弹出框-->
+        <el-dialog  element-loading-text="拼命加载中"
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="rgba(0, 0, 0, 0.8)"
+                    title="事件详情"
+                    :visible.sync="eventinfoshow"
+                    :modal="true"
+                    :modal-append-to-body='false'
+                    width="1366px" >
+            <iframe width="100%" height="600px" :src="eventinfourl">
+            </iframe>
+        </el-dialog>
+        <!--视频 弹出框-->
+        <el-dialog  element-loading-text="拼命加载中"
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="rgba(0, 0, 0, 0.8)"
+                    title="监控"
+                    :visible.sync="videoshow"
+                    :modal="true"
+                    :modal-append-to-body='false'
+                    width="800px" >
+            <iframe width="100%" height="600px" :src="videourl">
             </iframe>
         </el-dialog>
     </div>
@@ -499,6 +533,11 @@
                 wgyV: 0,//女网格员数
                 wgyNWidth:'0%',
                 wgyVWidth:'0%',
+                wg:{
+                    zxwg:12,
+                    fzxwg:12,
+                    wgsum:24
+                }, //执行网格/非执行网格数
                 nowdate:'',//右上角日期显示
                 chartsrk:null, //辖区概况下的人口统计
                 chartfw:null, //辖区概况下的房屋统计
@@ -508,30 +547,21 @@
                 chartwtjj:null,//问题聚焦统计
                 marqueeList: [
                     {
-                        title: '1-宁波市公安局政治部关于报送渉警、涉稳舆情季度分析报告的通知',
+                        title: '1-关于规范基层市场监管组织用户管理的通知',
                         id: '1',
-                        date: '2020-1-21'
+                        date: '2020-09-11 16:34:03'
                     },
                     {
-                        title: '2-宁波市公安局政治部关于报送渉警、涉稳舆情季度分析报告的通知',
+                        title: '2-关于进一步完善全省“基层治理四平台” 系统组织及用户信息的通知',
                         id: '2',
-                        date: '2020-1-22'
+                        date: '2020-09-09 15:43:17'
                     },
                     {
-                        title: '3-宁波市公安局政治部关于报送渉警、涉稳舆情季度分析报告的通知',
+                        title: '3-浙基治办（2020）6号关于建立“基层治理四平台 ”功能迭代、任务下发和工作沟通等机制的通知',
                         id: '3',
-                        date: '2020-1-23'
+                        date: '2020-09-09 15:34:25'
                     },
-                    {
-                        title: '4-宁波市公安局政治部关于报送渉警、涉稳舆情季度分析报告的通知',
-                        id: '4',
-                        date: '2020-1-24'
-                    },
-                    {
-                        title: '5-宁波市公安局政治部关于报送渉警、涉稳舆情季度分析报告的通知',
-                        id: '5',
-                        date: '2020-1-25'
-                    },
+
                 ], //紧急通知
                 c_top_item:'c_panner_item',//中间头部数值区域按钮未选中class
                 c_top_item_yjsj:'3',//一级事件数
@@ -540,6 +570,25 @@
                 c_top_item_wgzxl:'97%',//网格在线率
                 c_top_item_sjgbl:'21%',//事件关闭率
                 c_top_item_mfwgl:'97%',//满分网格率
+                orgname:'海曙区',//组织名称,默认：招宝山街道
+                orgid:'001001',  //组织id,默认：招宝山街道组织uid
+                eventslist:[
+                    {id:"8a9335c7709bfd980170c88c15b22161",createtime:"2020-09-15 14:54:00",title:"事件描述内容一",src:"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2525576107,3579471363&fm=15&gp=0.jpg"},
+                    {id:"8a9335c7709bfd980170c88c15b22161",createtime:"2020-09-15 14:54:00",title:"事件描述内容二",src:"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2116973228,1421477263&fm=26&gp=0.jpg"},
+                    {id:"8a9335c7709bfd980170c88c15b22161",createtime:"2020-09-15 14:54:00",title:"事件描述内容三",src:"https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=899052674,2044240737&fm=26&gp=0.jpg"},
+                ], //今日事件list
+                eventinfoshow:false,
+                eventinfourl:"",
+                videoshow:false,
+                videourl:"",
+                wtjjlist:[],
+                wgbs:0,
+                yqs:0,
+                ths:0,
+                wzss:0,
+                wqzs:0,
+                lqsjs:0,
+                ydzfwwcs:0
             }
         },
         computed: {
@@ -556,8 +605,8 @@
                 // eslint-disable-next-line no-unused-vars
                 handler(newValue, oldValue) {
                     let total=newValue.wgyN+newValue.wgyV;
-                    this.wgyNWidth=(newValue.wgyN/total)*100+"%";
-                    this.wgyVWidth=(newValue.wgyV/total)*100+"%";
+                    this.wgyNWidth=((newValue.wgyN/total)*100).toFixed(2)+"%";
+                    this.wgyVWidth=((newValue.wgyV/total)*100).toFixed(2)+"%";
                 },
                 deep: true
             },
@@ -592,7 +641,9 @@
                 this.chartznbmkh.resize();
             }
         },
-       async created() {
+        async created() {
+            //动态获取当前时间
+            setInterval(this.getNow, 1000);
             // let {data:data1} = await index.fetchData_post(Api.test,{
             //     AreaId:'001'
             //     }
@@ -607,23 +658,45 @@
            // this.bigScreenList = eventslist;
         },
         mounted() {
+            //将vue方法转换为js原生方法
+            let _this = this;
+            //将vue申明的方法复制给原生js方法，用于onclick方式原生调用
+            //cleareventinfo方法用于子iframe，事件详情页调用父方法来关闭当前事件详情弹窗
+            window.cleareventinfo = _this.cleareventinfo;
+            console.log("+++++++++++++window.cleareventinfo:",window.cleareventinfo);
+
+
+            window.showvideo = _this.showvideo;
+            console.log("+++++++++++++window.showvideo:",window.showvideo);
             this.getNow();
-            this.wgyN=8;
-            this.wgyV=2;
+
+            //绑定待办事件
+            this.binddbsj();
+
+
             //绑定人口
             this.bindrk();
             //绑定房屋
             this.bindfw();
             //绑定企业
             this.bindqy();
+            //绑定网格
+            this.bindwg();
 
             //绑定镇街考核
             this.bindStreetkh();
             //绑定职能部门考核
             this.bindDepartkh();
+            //绑定头部6项关键指标
+            this.bindgjzb();
+            //绑定底部日常提醒
+            this.bindrctx();
+            //绑定今日事件
+            this.bindjrsj();
+
+
             //绑定问题聚焦
             this.bindwtjj();
-
             //视窗size改变后重新赋值长宽
             const that = this;
             window.onresize = () => {
@@ -632,10 +705,9 @@
                 that.screenWidth = window.screenWidth;
                 that.screenHeight= window.screenHeight;
 
-            }
+            };
             //初始化画镇街行政区划
-            this.$refs.tiandt.initmap('001001','海曙区');
-
+            this.$refs.tiandt.initmap(this.orgid,this.orgname);
         },
         methods:{
             getNow(){
@@ -694,9 +766,83 @@
                // e.currentTarget.classList.add('tab_on');
                 this.xqgk_menutab=i;
             },
+            //绑定通知公告
+            async bindtzgg(){
+                this.tzgg=0;
+                this.tzgglist=[];
+                //  //调用通知公告接口
+                //  let {data:tzggdata} = await index.fetchData_get(Api.dpzj.dydtz,
+                //      {"orgcode":this.orgid});
+                //
+                //  // eslint-disable-next-line no-console
+                //  console.log("+++++获取到的人口数据：",rkdata)
+                //  let datalist=tzggdata;
+                //  this.tzgg=datalist.length;
+                //  this.tzgglist=datalist;
+            },
+            //绑定待办事件
+            async binddbsj(){
+                this.dbsj=0;
+                this.dbsjlist=[];
+                //  //调用待办事件接口
+                //  let {data:dbsjdata} = await index.fetchData_get(Api.dpzj.dbsj,
+                //      {"orgcode":this.orgid});
+                //
+                //  // eslint-disable-next-line no-console
+                //  console.log("+++++获取到的人口数据：",rkdata)
+                //  let datalist=dbsjdata;
+                //  this.dbsj=datalist.length;
+                //  this.dbsjlist=datalist;
+            },
             //绑定人口数据
-            bindrk(){
-                this.$nextTick(()=> {
+            async bindrk() {
+                let data1 = [
+                    {value: 0, name: '境外人员'},
+                    {value: 0, name: '外来人员'},
+                    {value: 0, name: '户籍人口'}
+                ];
+                let data2 = [
+                    {value: 0, name: '骨干对象'},
+                    {value: 0, name: '服务对象'},
+                    {value: 0, name: '管控对象'},
+                ];
+
+                 //人口数据
+                 let {data:rkdata} = await index.fetchData_get(Api.dpzj.rk,
+                     {"orgcode":this.orgid});
+
+                 // eslint-disable-next-line no-console
+                 console.log("+++++获取到的人口数据：",rkdata)
+                 let datalist=rkdata;
+
+
+                data1.forEach(item=>{
+                   if(item.name=="境外人员"){
+                       item.value=datalist[0].jwry;
+
+                   }
+                   else if(item.name=="外来人员"){
+                       item.value=datalist[0].wlry;
+                   }
+                   else if(item.name=="户籍人口"){
+                       item.value=datalist[0].hjrk;
+                   }
+                });
+
+                data2.forEach(item=>{
+                    if(item.name=="骨干对象"){
+                        item.value=datalist[0].ggdx;
+                    }
+                    else if(item.name=="服务对象"){
+                        item.value=datalist[0].fwdx;
+                    }
+                    else if(item.name=="管控对象"){
+                        item.value=datalist[0].gkdx;
+                    }
+                });
+                console.log("[人口]++++处理后的data1:",data1);
+
+                this.$nextTick(() => {
                     //辖区概况-人口
                     let echarts = require('echarts');
                     // 基于准备好的dom，初始化echarts实例
@@ -711,34 +857,32 @@
                             legend: [
                                 {
                                     orient: 'vertical',
-                                    x:'left',
-                                    y:'center',
+                                    x: 'left',
+                                    y: 'center',
                                     textStyle: {
                                         color: '#fff',
                                     },
                                     tooltip: {
                                         show: true,
-                                        formatter:function(param){
+                                        formatter: function (param) {
                                             // eslint-disable-next-line no-console
-                                            console.log('++++++++++tooltip:',param);
-                                            //this.arr.find((item) => item.id === obj.getAttribute('data-id'));
+                                            console.log('++++++++++tooltip:', param);
                                             return param.name;
                                         }
                                     },
                                     formatter: function (param) {
-                                        console.log("[人口]++++++param:",param);
                                         return param;
                                     },
-                                    data:['境外人员', '外来人员', '户籍人口']
+                                    data: ['境外人员', '外来人员', '户籍人口']
                                 },
                                 {
                                     orient: 'vertical',
-                                    x:'right',
-                                    y:'center',
+                                    x: 'right',
+                                    y: 'center',
                                     textStyle: {
                                         color: '#fff',
                                     },
-                                    data:['骨干对象', '服务对象', '管控对象']
+                                    data: ['骨干对象', '服务对象', '管控对象']
                                 }
                             ],
                             series: [
@@ -748,43 +892,38 @@
                                     type: 'pie',
                                     selectedMode: 'single',
                                     radius: [0, '40%'],
-                                    top:10,
-                                    left:'center',
+                                    top: 10,
+                                    left: 'center',
                                     label: {
-                                        show:true,
+                                        show: true,
                                         formatter: '{c}',
                                         position: 'inside'
                                     },
-                                    // labelLine: {
-                                    //     show: false
-                                    // },
-                                    data: [
-                                        {value: 100, name: '境外人员', selected: true},
+                                    data: data1
+                                    /*data: [
+                                        {value: 100, name: '境外人员'},
                                         {value: 379, name: '外来人员'},
                                         {value: 700, name: '户籍人口'}
-                                    ]
+                                    ]*/
                                 },
                                 {
                                     name: '对象管理',
                                     type: 'pie',
                                     selectedMode: 'single',
                                     radius: ['55%', '75%'],
-                                    top:10,
-                                    left:'center',
+                                    top: 10,
+                                    left: 'center',
                                     label: {
-                                        show:true,
+                                        show: true,
                                         formatter: '{b}:{c}',
                                         position: 'outside'
                                     },
-                                    // labelLine: {
-                                    //     show: false
-                                    // },
-                                    data: [
-                                        {value: 300, name: '骨干对象'},
-                                        {value: 679, name: '服务对象'},
-                                        {value: 200, name: '管控对象'},
-
-                                    ]
+                                    data: data2
+                                    /* data: [
+                                         {value: 300, name: '骨干对象'},
+                                         {value: 679, name: '服务对象'},
+                                         {value: 200, name: '管控对象'},
+                                     ]*/
                                 }
                             ]
                         }
@@ -792,8 +931,26 @@
                 });
             },
             //绑定房屋数据
-            bindfw(){
-                this.$nextTick(()=> {
+            async bindfw() {
+
+                let data1 = [0, 0, 0];
+
+
+               //调用房屋
+                data1=[];
+                let {data:fwdata} = await index.fetchData_get(Api.dpzj.fw,
+                         {"orgcode":this.orgid});
+                let datalist=fwdata;
+
+
+
+                data1.push(datalist[0].fw);
+                data1.push(datalist[0].wf);
+                data1.push(datalist[0].czf);
+
+                console.log("[房屋]++++++++++data1:",data1);
+
+                this.$nextTick(() => {
                     //辖区概况-人口
                     let echarts = require('echarts');
                     // 基于准备好的dom，初始化echarts实例
@@ -808,62 +965,77 @@
                                 }
                             },
                             legend: {
-                                data: ['危房', '出租房', '拆迁房']
+                                data: ['房屋', '危房', '出租房']
                             },
                             grid: {
                                 left: '3%',
                                 right: '4%',
-                                top:'3%',
+                                top: '3%',
                                 bottom: '3%',
                                 containLabel: true
                             },
                             xAxis: {
                                 type: 'value',
-                                nameTextStyle:{
-                                    color:'#94d4f8',
-                                    fontStyle:'normal',
-                                    fontSize:12,
+                                nameTextStyle: {
+                                    color: '#94d4f8',
+                                    fontStyle: 'normal',
+                                    fontSize: 12,
                                 },
                                 axisLabel: {
                                     textStyle: {
                                         color: '#94d4f8',
-                                        fontSize:10,
+                                        fontSize: 10,
                                     }
                                 }
                             },
                             yAxis: {
                                 type: 'category',
-                                nameTextStyle:{
-                                    color:'#94d4f8',
-                                    fontStyle:'normal',
-                                    fontSize:12,
+                                nameTextStyle: {
+                                    color: '#94d4f8',
+                                    fontStyle: 'normal',
+                                    fontSize: 12,
                                 },
                                 axisLabel: {
                                     textStyle: {
                                         color: '#94d4f8',
-                                        fontSize:14,
+                                        fontSize: 14,
                                     }
                                 },
-                                data: ['危房', '出租房', '拆迁房'],
+                                data: ['房屋', '危房', '出租房']
                             },
-                            series:   {
+                            series: {
                                 name: '房屋统计',
                                 type: 'bar',
                                 stack: '总量',
                                 label: {
                                     show: true,
                                     formatter: '{c}',
-                                    position: 'insideRight'
+                                    color:'#ffffff',
+                                    position: 'right'
                                 },
-                                data: [150, 212, 201]
+                                data: data1
                             },
                         }
                     );
                 });
             },
             //绑定企业数据
-            bindqy(){
-                this.$nextTick(()=> {
+            async bindqy() {
+                let data1 = [0, 0, 0];
+
+
+               // 调用企业
+                data1=[];
+                let {data:qydata} = await index.fetchData_get(Api.dpzj.qy,
+                              {"orgcode":this.orgid});
+                let datalist=qydata;
+                data1.push(datalist[0].sszt);
+                data1.push(datalist[0].jgdw);
+                data1.push(datalist[0].shzt);
+
+                console.log("[企业]++++++++++data1:",data1);
+
+                this.$nextTick(() => {
                     //辖区概况-人口
                     let echarts = require('echarts');
                     // 基于准备好的dom，初始化echarts实例
@@ -883,57 +1055,87 @@
                             grid: {
                                 left: '3%',
                                 right: '4%',
-                                top:'3%',
+                                top: '3%',
                                 bottom: '3%',
                                 containLabel: true
                             },
                             xAxis: {
                                 type: 'value',
-                                nameTextStyle:{
-                                    color:'#94d4f8',
-                                    fontStyle:'normal',
-                                    fontSize:12,
+                                nameTextStyle: {
+                                    color: '#94d4f8',
+                                    fontStyle: 'normal',
+                                    fontSize: 12,
                                 },
                                 axisLabel: {
                                     textStyle: {
                                         color: '#94d4f8',
-                                        fontSize:10,
+                                        fontSize: 10,
                                     }
                                 }
                             },
                             yAxis: {
                                 type: 'category',
-                                nameTextStyle:{
-                                    color:'#94d4f8',
-                                    fontStyle:'normal',
-                                    fontSize:12,
+                                nameTextStyle: {
+                                    color: '#94d4f8',
+                                    fontStyle: 'normal',
+                                    fontSize: 12,
                                 },
                                 axisLabel: {
                                     textStyle: {
                                         color: '#94d4f8',
-                                        fontSize:14,
+                                        fontSize: 14,
                                     }
                                 },
                                 data: ['商事主体', '机关单位', '社会组织'],
                             },
-                            series:   {
+                            series: {
                                 name: '企业统计',
                                 type: 'bar',
                                 stack: '总量',
                                 label: {
                                     show: true,
                                     formatter: '{c}',
-                                    position: 'insideRight'
+                                    color:'#ffffff',
+                                    position: 'right'
                                 },
-                                data: [542, 23, 189]
+                                data: data1
                             },
                         }
                     );
                 });
             },
+            //绑定网格数据
+            async bindwg(){
+
+                //调用网格数据接口
+                let {data:wgdata} = await index.fetchData_get(Api.dpzj.wg,
+                              {"orgcode":this.orgid});
+                let datalist=wgdata;
+                this.wg.zxwg=datalist[0].zxwgs;
+                this.wg.fzxwg=datalist[0].fzxwgs;
+                this.wg.wgsum=datalist[0].wgysl;
+
+                this.wgyN=datalist[0].male===null?0:datalist[0].male;
+                this.wgyV=datalist[0].female===null?0:datalist[0].female;
+            },
             //绑定镇街考核
-            bindStreetkh(){
-                this.$nextTick(()=> {
+            async bindStreetkh() {
+
+                let data1 = [60, 73, 85, 40, 90];
+
+
+                // data1=[]
+                // let {data:wxzbdata} = await index.fetchData_get(Api.dpzj.wxzb,
+                //               {"orgcode":this.orgid});
+                // let datalist=wxzbdata;
+                // data1.push(datalist.wgcq);
+                // data1.push(datalist.lxbz);
+                // data1.push(datalist.xxdb);
+                // data1.push(datalist.czzl);
+                // data1.push(datalist.yxsj);
+                // console.log("[镇街考核]++++++++++data1:",data1);
+
+                this.$nextTick(() => {
                     //日常考核-镇街考核
                     let echarts = require('echarts');
                     // 基于准备好的dom，初始化echarts实例
@@ -941,8 +1143,8 @@
                     // 绘制图表
                     this.chartzjkh.setOption({
                         title: {
-                            text: '镇街考核',
-                            textStyle:{
+                            text: '五项指标',
+                            textStyle: {
                                 color: '#cf3c80',
                             },
                             // 分别设置四个方向的内边距
@@ -959,8 +1161,37 @@
                         // legend: {
                         //     data: ['镇街考核']
                         // },
+                        // radar: {
+                        //     // shape: 'circle',
+                        //     name: {
+                        //         textStyle: {
+                        //             color: '#98d4f6',
+                        //             //backgroundColor: '#999',
+                        //             borderRadius: 3,
+                        //             padding: [0, 0]
+                        //         }
+                        //     },
+                        //     indicator: [
+                        //         { name: '网格出勤', max: 100},
+                        //         { name: '类型标注', max: 100},
+                        //         { name: '信息对比', max: 100},
+                        //         { name: '处置质量', max: 100},
+                        //         { name: '有效事件', max: 100}
+                        //     ],
+                        //     splitArea: {
+                        //         areaStyle: {
+                        //             color: ['rgba(114, 172, 209, 0.2)',
+                        //                 'rgba(114, 172, 209, 0.4)', 'rgba(114, 172, 209, 0.6)',
+                        //                 'rgba(114, 172, 209, 0.8)', 'rgba(114, 172, 209, 1)'],
+                        //             shadowColor: 'rgba(0, 0, 0, 0.3)',
+                        //             shadowBlur: 10
+                        //         }
+                        //     },
+                        //     radius: '60%',
+                        //     center: ['50%', '60%'],
+                        //
+                        // },
                         radar: {
-                            // shape: 'circle',
                             name: {
                                 textStyle: {
                                     color: '#98d4f6',
@@ -970,11 +1201,11 @@
                                 }
                             },
                             indicator: [
-                                { name: '网格出勤', max: 100},
-                                { name: '类型标注', max: 100},
-                                { name: '信息对比', max: 100},
-                                { name: '处置质量', max: 100},
-                                { name: '有效事件', max: 100}
+                                {text: '网格出勤', max: 100},
+                                {text: '类型标注', max: 100},
+                                {text: '信息对比', max: 100},
+                                {text: '处置质量', max: 100},
+                                {text: '有效事件', max: 100},
                             ],
                             splitArea: {
                                 areaStyle: {
@@ -985,35 +1216,53 @@
                                     shadowBlur: 10
                                 }
                             },
-                            radius: '60%',
                             center: ['50%', '60%'],
-
+                            radius: '60%',
                         },
-                        series: [{
-                            name: '镇街考核',
+                        series: {
                             type: 'radar',
-                            areaStyle: {normal: {}},
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            areaStyle: {},
                             data: [
                                 {
-                                    value: [70, 60, 90, 40, 90],
-                                    name: '镇街考核'
-                                },
-                                {
-                                    value: [30, 70, 50, 80, 40],
-                                    name: '镇街平均值'
+                                    value: [60, 73, 85, 40, 90],
+                                    name: '五项指标指数'
                                 }
-
                             ]
-                        }]
+                        },
                     });
 
                 });
             },
             //绑定职能部门考核
-            bindDepartkh(){
-                this.$nextTick(()=> {
+            async bindDepartkh() {
+                let bjsxdata = [150, 212, 201, 154, 190, 330, 410];
+                let bjzldata = [220, 182, 191, 234, 290, 330, 310];
+                let wgmydata = [120, 132, 101, 134, 90, 230, 210];
+                let departdata = ['党政办', '发展服务办', '综合治理办', '社会服务管理办', '综合指挥室', '财政管理办', '市场监督办'];
 
-                   // let colors = ['#5793f3', '#d14a61', '#675bba'];
+                bjsxdata=[]
+                bjzldata=[];
+                wgmydata=[];
+                departdata=[];
+                //调用职能部门考核
+                let {data:znbmkhdata} = await index.fetchData_get(Api.dpzj.kh,
+                              {"orgcode":this.orgid});
+                let datalist=znbmkhdata;
+
+                datalist.map(item=>{
+                    let obj={...item};
+                    departdata.push(obj.departname);
+                    bjsxdata.push(obj.bjsx.toString().substring(0,2));
+                    bjzldata.push(obj.bjzl.toString().substring(0,2));
+                    wgmydata.push(obj.wgmy.toString().substring(0,2));
+                });
+
+
+                this.$nextTick(() => {
+                    // let colors = ['#5793f3', '#d14a61', '#675bba'];
                     //日常考核-职能部门考核）
                     let echarts = require('echarts');
                     // 基于准备好的dom，初始化echarts实例
@@ -1021,8 +1270,8 @@
                     // 绘制图表（职能部门考核）
                     this.chartznbmkh.setOption({
                         title: {
-                            text: '职能部门考核',
-                            textStyle:{
+                            text: '科室评估',
+                            textStyle: {
                                 color: '#8cedff',
                             },
                             // 分别设置四个方向的内边距
@@ -1034,60 +1283,183 @@
                             ]
                         },
                         legend: {
+                            type: 'scroll',
+                            left: '30%',
+                            width: '65%',
+                            orient: 'horizontal',
                             data: ['办结时限', '办结质量', '网格满意'],
-                            left: 10
+                            top: 2,
+                            // 设置文本为红色
+                            textStyle: {
+                                color: '#fff'
+                            }
                         },
-                        tooltip: {},
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
                         xAxis: {
                             type: 'category',
-                            data: ['党政办', '发展服务办', '综合治理办', '社会服务管理办', '综合指挥室', '财政管理办', '市场监督办']
-                        },
-                        yAxis: {
-                            type: 'value',
-                            nameTextStyle:{
-                                color:'#94d4f8',
-                                fontStyle:'normal',
-                                fontSize:12,
+                            nameTextStyle: {
+                                color: '#94d4f8',
+                                fontStyle: 'normal',
+                                fontSize: 12,
                             },
                             axisLabel: {
                                 textStyle: {
                                     color: '#94d4f8',
-                                    fontSize:10,
+                                    fontSize: 12,
+                                }
+                            },
+                            data: departdata
+                        },
+                        yAxis: {
+                            type: 'value',
+                            nameTextStyle: {
+                                color: '#94d4f8',
+                                fontStyle: 'normal',
+                                fontSize: 12,
+                            },
+                            axisLabel: {
+                                textStyle: {
+                                    color: '#94d4f8',
+                                    fontSize: 10,
                                 }
                             }
                         },
-                        grid:{
-                            x:40,
-                            y:40,
-                            width:'80%',
-                            height:'70%'
+                        grid: {
+                            x: '15%',
+                            y: '23%',
+                            width: '80%',
+                            height: '60%'
                         },
-                        series: [{
-                            data: [120, 200, 150, 80, 70, 110, 130],
-                            type: 'bar',
-                            barWidth: "50%",
-                            showBackground: true,
-                            stack: 'one',
-                            backgroundStyle: {
-                                color: '#1679b4'
-                            }
-                        },
+                        series: [
                             {
-                                data: [60, 90, 100, 60, 50, 90, 110],
+                                name: '办结时限',
                                 type: 'bar',
-                                barWidth: "60%",
-                                showBackground: true,
-                                stack: 'one',
-                                backgroundStyle: {
-                                    color: 'rgba(220, 220, 220, 0.8)'
-                                }
-                            }]
-                    });
+                                stack: '总量',
+                                label: {
+                                    show: true,
+                                    position: 'inside'
+                                },
+                                data: bjsxdata
+                            },
+                            {
+                                name: '办结质量',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    show: true,
+                                    position: 'inside'
+                                },
+                                data: bjzldata
+                            },
+                            {
+                                name: '网格满意',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    show: true,
+                                    position: 'inside'
+                                },
+                                data: wgmydata
+                            }
 
+                        ]
+                    });
+                });
+            },
+            //绑定头部6项关键指标
+            async bindgjzb(){
+                //调用6项关键指标
+                let {data:gjzbdata} = await index.fetchData_get(Api.dpzj.gjzb,
+                    {"orgcode":this.orgid});
+                let datalist=gjzbdata;
+
+                this.c_top_item_yjsj=datalist[0].OneEventNums;
+                this.c_top_item_ejsj=datalist[0].twoEventNums;
+                this.c_top_item_sjsj=datalist[0].threeEventNums;
+                this.c_top_item_wgzxl=((datalist[0].wgzxl)*100).toString().substring(0,4)+"%";
+                this.c_top_item_sjgbl=((datalist[0].sjgbl)*100).toString().substring(0,4)+"%";
+                this.c_top_item_mfwgl=((datalist[0].mfwgl)*100).toString().substring(0,4)+"%";
+
+            },
+            //绑定底部7项指标
+            async bindrctx(){
+                //调用6项关键指标
+                let {data:rctxdata} = await index.fetchData_get(Api.dpzj.rctx,
+                    {"orgcode":this.orgid});
+                let datalist=rctxdata;
+
+                this.wgbs=datalist[0].wgbs==null?0:datalist[0].wgbs;
+                this.yqs=datalist[0].yqs==null?0:datalist[0].yqs;
+                this.ths=datalist[0].ths==null?0:datalist[0].ths;
+                this.wzss=datalist[0].wzss==null?0:datalist[0].wzss;
+                this.wqzs=datalist[0].wqzs==null?0:datalist[0].wqzs;
+                this.lqsjs=datalist[0].lqsjs==null?0:datalist[0].lqsjs;
+                this.ydzfwwcs=datalist[0].ydzfwwcs==null?0:datalist[0].ydzfwwcs;
+            },
+            //绑定今日事件
+            async bindjrsj(){
+                //调用今日事件
+                let {data:jrsjdata} = await index.fetchData_get(Api.dpzj.topevents,
+                    {"orgcode":this.orgid});
+                let datalist=jrsjdata;
+                this.eventslist=[];
+              //  this.eventslist=datalist;
+
+
+                if(datalist.length>=5){
+                      for(let i=0;i<5;i++){
+                          this.eventslist.push(datalist[i]);
+                      }
+                }
+                else{
+                    for(let i=0;i<datalist.length;i++){
+                        this.eventslist.push(datalist[i]);
+                    }
+                }
+                //console.log("+++++++++eventslist:",this.eventslist);
+                let j=0;
+                this.eventslist.forEach(item=>{
+                  item.src=item.imgurl;
                 });
             },
             //绑定问题聚焦
-            bindwtjj(){
+            async bindwtjj(){
+
+                let that=this;
+
+                let data1=[
+                    {value: 200, name: '排摸湖北籍人员'},
+                    {value: 335, name: '电瓶车充电'},
+                    {value: 310, name: '拆迁问题'},
+                    {value: 170, name: '精神病异常'},
+                    {value: 235, name: '健身器材损坏'},
+                    {value: 400, name: '施工扰民'}
+                    ];
+
+
+                // //调用问题聚焦
+                // data1=[];
+                // let {data:wtjjdata} = await index.fetchData_get(Api.dpzj.wtjj,
+                //               {"orgcode":this.orgid});
+                // let datalist=wtjjdata;
+                //
+                // datalist.map(item=>{
+                //     let obj={...item};
+                //     wtjjlist.push(obj);
+                //     data1.push({
+                //      value: obj.value, name: obj.name
+                //     });
+                //
+                //
+                //
+                //
+                // });
+
                 this.$nextTick(()=> {
 
                     // let colors = ['#5793f3', '#d14a61', '#675bba'];
@@ -1117,14 +1489,7 @@
                                 type: 'pie',
                                 radius: '75%',
                                 center: ['50%', '50%'],
-                                data: [
-                                    {value: 200, name: '排摸湖北籍人员'},
-                                    {value: 335, name: '电瓶车充电'},
-                                    {value: 310, name: '拆迁问题'},
-                                    {value: 170, name: '精神病异常'},
-                                    {value: 235, name: '健身器材损坏'},
-                                    {value: 400, name: '施工扰民'},
-                                ].sort(function (a, b) { return a.value - b.value; }),
+                                data: data1.sort(function (a, b) { return a.value - b.value; }),
                                 roseType: 'radius',
                                 label: {
                                     color: '#fff',
@@ -1148,7 +1513,13 @@
                             }
                         ]
                     });
-
+                    this.chartwtjj.on('click', function (params) {
+                        // console.log("+++++++++++++++params:",params);
+                        // let item=that.wtjjlist.find((item) => item.name == params.name);
+                        // console.log("+++++++++++++++查找到的问题聚焦id:",item);
+                        // console.log("+++++++++++++++params.name：",params.name);
+                        //console.log("+++++++++++++++params.seriesName：",params.seriesName);
+                    });
                 });
             },
             //中部区域头部数值按钮鼠标移上
@@ -1203,7 +1574,9 @@
                 }
 
                 // 调用天地图子组件中的方法
-                //this.$refs.tiandt.setmarker(MarkerList);
+               // this.$refs.tiandt.setmarker(MarkerList);
+
+
                 this.$refs.tiandt.changeThemeEvent("90ff1917-9560-4ec1-a0d6-184326e1af6d","");
             },
             //点击待办事件弹出框
@@ -1234,6 +1607,34 @@
                 this.infourl="";
                 this.infourl="http://10.19.181.153/grid/notice/f.show?id="+row.id+"&random="+Math.floor(Math.random()*450001);
             },
+            //显示事件详情
+            showeventinfo(obj){
+                this.eventinfourl="";
+                this.eventinfourl="http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id="+obj+"&isShow=1&areaCode="+this.orgid+"&random="+Math.floor(Math.random()*450001)+"";
+                this.eventinfoshow=true;
+            },
+            //关闭事件详情弹出框
+            cleareventinfo(){
+                this.eventinfourl="";
+                this.eventinfoshow=false;
+
+                this.$refs.tiandt.cleareventinfo();
+                console.log("+++++++++成功调用父方法");
+            },
+            //显示视频流
+            async showvideo(channelId){
+
+
+               console.log("++++++++++获取到的视频channelId：",channelId);
+
+                let videodata = await index.fetchData_get(Api.video+"?id="+channelId,null);
+                let data1= JSON.parse(JSON.parse(videodata));
+
+               console.log("++++++++++获取到的视频流videodata：",videodata);
+
+                this.videourl="http://10.68.129.154:8119/pages/Childs/PulmonitisProblem/video.html?url="+encodeURIComponent(data1.url);
+                this.videoshow=true;
+            }
         }
     }
 </script>
@@ -1293,6 +1694,10 @@
         font-size: 1.1rem;
         text-indent: 5px;
     }
+    .el-carousel__item{
+        border-radius: 10px !important;
+    }
+
     .el-carousel__item h3 {
         color: #475669;
         font-size: 18px;
@@ -1301,10 +1706,12 @@
         margin: 0;
     }
     .el-carousel__item:nth-child(2n) {
-        background-color: #99a9bf;
+        border-radius: 10px !important;
+        background-color: inherit !important;
     }
     .el-carousel__item:nth-child(2n+1) {
-        background-color: #d3dce6;
+        border-radius: 10px !important;
+        background-color: inherit !important;
     }
     .main {
         @include parent;

@@ -1,8 +1,20 @@
 <template>
     <div id="map" >
-        <div class="left_banner">
+        <!--        <div class="left_banner">-->
 
-        </div>
+        <!--        </div>-->
+        <el-date-picker
+                v-model="values"
+                type="daterange"
+                value-format="yyyy-MM-dd"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :disabled="false"
+                :style="{zIndex:999}"
+                @change="changeThemeEvent('','')"
+        ></el-date-picker>
+        <!--        <el-button type="primary" plain @click="">查询</el-button>-->
         <!--事件详情 弹出框-->
         <el-dialog  element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading"
@@ -11,8 +23,8 @@
                     :visible.sync="eventinfoshow"
                     :modal="true"
                     :modal-append-to-body='false'
-                    width="1000px" >
-            <iframe width="100%" height="500px" :src="eventinfourl">
+                    width="1366px" >
+            <iframe width="100%" height="600px" :src="eventinfourl">
             </iframe>
         </el-dialog>
     </div>
@@ -32,12 +44,15 @@
                 orguid:'001',
                 orgname:'',
                 type:'',
-                themeId:'f26c125f-86d6-40fe-a446-b7cb837b57fc'
+                themeId:'f26c125f-86d6-40fe-a446-b7cb837b57fc',
+                stime:'',
+                etime:'',
+                values:['20']
             }
         },
 
         created() {
-
+            this.TimeFormat();
         },
         mounted() {
             //this.setmarker(null);
@@ -46,105 +61,120 @@
         methods:{
             //初始化点位+画面
             async initmap(orgCode,orgname,types){
-                  this.$nextTick(()=> {
-                      let that=this;  //将方法放在mounted，会有指向问题，定义this使用就会正常
-                      window.require(["jsmap"], function () {
-                          //var  map=jsmap.Map("map");//使用默认底图
-                          // eslint-disable-next-line no-undef
-                          that.dmap = JSMap.Map("map", {mapType: "电子地图(高端灰)"}); //初始化时候自定义底图
-                          that.myJSMap = JSMap;
-                          that.orgname = orgname;
-                          that.type = types;
-                          // eslint-disable-next-line no-undef
-                          that.dmap.centerAndZoom(new JSMap.Point(121.535, 29.873), 1);
-                          that.dmap.setMaxZoom(6);
-                          that.dmap.setMinZoom(1);
-                          // eslint-disable-next-line no-unused-vars
-                          let opt={
-                              fillColor:"#0445a7",
-                              color:"#ff0000"
-                          }
-                          let zjdata=null;
-                          if(orgCode!= '001'){
-                              if(orgCode.length == 6)
-                              {
-                                  zjdata=that.dmap.getLayerXSQ(that.orgname)
-                                  //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
-                              }else{
-                                  zjdata=that.dmap.getLayerJD(that.orgname)
-                                  //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
-                              }
-                              /*
-                              // eslint-disable-next-line no-undef
-                              let arrPois=JSMap.getPoints(zjdata[0].SHAPE);
-                              // eslint-disable-next-line no-undef
-                              let polygon=JSMap.Polygon(arrPois,opt);
-                              that.dmap.flyToLayer(polygon,true,function(){
-                                  // eslint-disable-next-line no-undef,no-unused-vars
-                                  let buffer=JSMap.getLayerBuffer(polygon,100,function(layerBuffer){
-                                      that.dmap.addOverlay(layerBuffer);
-                                  })
-                              })
-                              */
-                              zjdata.options.fill=false
-                              that.dmap.flyToLayer(zjdata)
-                              //添加围栏
-                              that.dmap.setFenceLayer(zjdata)
-                          }
-                          that.SetMapZoom(JSMap);
+                this.$nextTick(()=> {
+                    let that=this;  //将方法放在mounted，会有指向问题，定义this使用就会正常
+                    window.require(["jsmap"], function () {
+                        //var  map=jsmap.Map("map");//使用默认底图
+                        // eslint-disable-next-line no-undef
+                        that.dmap = JSMap.Map("map", {mapType: "电子地图(高端灰)"}); //初始化时候自定义底图
+                        that.myJSMap = JSMap;
+                        that.orgname = orgname;
+                        that.type = types;
+                        // eslint-disable-next-line no-undef
+                        that.dmap.centerAndZoom(new JSMap.Point(121.535, 29.873), 1);
+                        that.dmap.setMaxZoom(9);
+                        that.dmap.setMinZoom(1);
+                        // eslint-disable-next-line no-unused-vars
+                        let opt={
+                            fillColor:"#0445a7",
+                            color:"#ff0000"
+                        }
+                        let zjdata=null;
+                        that.orguid =orgCode;
+                        if(orgCode!= '001'){
+                            if(orgCode.length == 6)
+                            {
+                                zjdata=that.dmap.getLayerXSQ(that.orgname)
+                                //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
+                            }else{
+                                zjdata=that.dmap.getLayerJD(that.orgname)
+                                //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
+                            }
+                            /*
+                            // eslint-disable-next-line no-undef
+                            let arrPois=JSMap.getPoints(zjdata[0].SHAPE);
+                            // eslint-disable-next-line no-undef
+                            let polygon=JSMap.Polygon(arrPois,opt);
+                            that.dmap.flyToLayer(polygon,true,function(){
+                                // eslint-disable-next-line no-undef,no-unused-vars
+                                let buffer=JSMap.getLayerBuffer(polygon,100,function(layerBuffer){
+                                    that.dmap.addOverlay(layerBuffer);
+                                })
+                            })
+                            */
+                            zjdata.options.fill=false
+                            that.dmap.flyToLayer(zjdata)
+                            //添加围栏
+                            that.dmap.setFenceLayer(zjdata)
+                        }
+                        that.SetMapZoom(JSMap);
+                        //修改部分
+                        window.map=that.dmap;
 
-                          // // eslint-disable-next-line no-undef
-                          // let marker2 = new JSMap.Marker(new JSMap.Point(121.533,29.87));
-                          // that.dmap.addOverlay(marker2);
-                          // //绑定点位弹出框
-                          // marker2.bindPopup("<font size=5>事件标记点位");
-                          // //绑定点位tip提示信息,支持html
-                          // marker2.bindTooltip("我是点233333333333333333333333");
-                          // //that.dmap.setFenceLayer(layerBuffer);
-                          // // eslint-disable-next-line no-console
-                          // console.log("##################dmap:",that.dmap);
-                      });
-                  });
-              },
+                        //修改部分
+                        that.dmaplayer=JSMap;
+                        console.log("+++++++++that.dmaplayer:",that.dmaplayer);
+                        window.dmaplayer=that.dmaplayer;
+
+                        //修改部分
+                        window.map=that.dmap;
+
+                        //修改部分
+                        that.dmaplayer=JSMap;
+                        console.log("+++++++++that.dmaplayer:",that.dmaplayer);
+                        window.dmaplayer=that.dmaplayer;
+                        // // eslint-disable-next-line no-undef
+                        // let marker2 = new JSMap.Marker(new JSMap.Point(121.533,29.87));
+                        // that.dmap.addOverlay(marker2);
+                        // //绑定点位弹出框
+                        // marker2.bindPopup("<font size=5>事件标记点位");
+                        // //绑定点位tip提示信息,支持html
+                        // marker2.bindTooltip("我是点233333333333333333333333");
+                        // //that.dmap.setFenceLayer(layerBuffer);
+                        // // eslint-disable-next-line no-console
+                        // console.log("##################dmap:",that.dmap);
+                    });
+                });
+            },
             //设置标记点位
             async setmarker(MarkerList){
-                 // await this.initmap();
-                  let that=this;
-                  //自定义图标
-                  window.require(["jsmap"], function () {
-                      that.dmap.removeOverlayGroup("eventmarkerlist");
-                      // let icon=JSMap.Icon("http://10.68.132.104/JSMap/demo/icon/marker-icon-red.png", new JSMap.Size(25,41));
-                      // let marker3 = new JSMap.Marker(new JSMap.Point(121.539,29.87),{icon:icon});
-                      // marker3.bindTooltip("自定义图标");
-                      // MarkerList.For
-                      let markerlist=[];
-                      // eslint-disable-next-line no-console
-                      console.log("#####################MarkerList:",MarkerList);
-                      MarkerList.forEach(item=>{
-                          // eslint-disable-next-line no-undef
-                          let icon=new JSMap.IconMarker({
-                              icon: 'fa-circle-o-notch',//icon名称参考：http://www.fontawesome.com.cn/faicons/
-                              iconColor:item.iconColor,
-                              markerColor: 'black',
-                              prefix: 'fa',
-                              extraClasses: 'fa-spin' //让图标旋转
-                          });
-                          // eslint-disable-next-line no-undef
-                          let marker=new JSMap.Marker(new JSMap.Point(item.x,item.y),{icon:icon});
-                          marker.bindPopup("<h1>"+item.title+"</h1><p>"+item.content+"</p>");
-                          // marker.on("click",function(e){
-                          //     alert(e.target)
-                          // })
-                          markerlist.push(marker);
-                      });
+                // await this.initmap();
+                let that=this;
+                //自定义图标
+                window.require(["jsmap"], function () {
+                    that.dmap.removeOverlayGroup("eventmarkerlist");
+                    // let icon=JSMap.Icon("http://10.68.132.104/JSMap/demo/icon/marker-icon-red.png", new JSMap.Size(25,41));
+                    // let marker3 = new JSMap.Marker(new JSMap.Point(121.539,29.87),{icon:icon});
+                    // marker3.bindTooltip("自定义图标");
+                    // MarkerList.For
+                    let markerlist=[];
+                    // eslint-disable-next-line no-console
+                    console.log("#####################MarkerList:",MarkerList);
+                    MarkerList.forEach(item=>{
+                        // eslint-disable-next-line no-undef
+                        let icon=new JSMap.IconMarker({
+                            icon: 'fa-circle-o-notch',//icon名称参考：http://www.fontawesome.com.cn/faicons/
+                            iconColor:item.iconColor,
+                            markerColor: 'black',
+                            prefix: 'fa',
+                            extraClasses: 'fa-spin' //让图标旋转
+                        });
+                        // eslint-disable-next-line no-undef
+                        let marker=new JSMap.Marker(new JSMap.Point(item.x,item.y),{icon:icon});
+                        marker.bindPopup("<h1>"+item.title+"</h1><p>"+item.content+"</p>");
+                        // marker.on("click",function(e){
+                        //     alert(e.target)
+                        // })
+                        markerlist.push(marker);
+                    });
 
-                      // eslint-disable-next-line no-undef
-                      let overlayGroup2=new JSMap.OverlayGroup(markerlist);
-                      overlayGroup2.id="eventmarkerlist";
-                      that.dmap.addOverlayGroup(overlayGroup2);
-                      //that.dmap.addOverlay(marker);
-                  });
-              },
+                    // eslint-disable-next-line no-undef
+                    let overlayGroup2=new JSMap.OverlayGroup(markerlist);
+                    overlayGroup2.id="eventmarkerlist";
+                    that.dmap.addOverlayGroup(overlayGroup2);
+                    //that.dmap.addOverlay(marker);
+                });
+            },
             //地图查询条件
             async getQuery(){
                 let whereStr = "(";
@@ -155,20 +185,35 @@
                 }
                 //22类判断
                 else if (this.type !== "" && this.type !== null && this.type !== undefined) {
-                    whereStr += "~and(t6,eq," + this.type + "~)";
+                    whereStr += "~and(t6,eq," + this.type + ")";
                 }
                 //区域判断
                 if (this.orguid !== "001") {
-                    whereStr += "~and(t1,eq," + this.orguid + "~)";
-                }
+                    if(this.orguid.length == 6)
+                    {
+                        whereStr += "~and(t1,eq," + this.orguid + ")";
+                        //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
+                    }else{
+                        whereStr += "~and(t7,eq," + this.orguid + ")";
+                        //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
+                    }
 
+                }
+                if(this.values.length >0)
+                {
+                    let sTime = new Date(this.values[0]+' 00:00:00').getTime();
+                    let eTime = new Date(this.values[1]+' 00:00:00').getTime();
+                    whereStr += "~and(createtime,gte," + this.values[0] + " 00:00:00)";
+                    whereStr += "~and(createtime,lte," + this.values[1] + " 00:00:00)";
+                    //whereStr += "~and(createtime,bw," + this.values[0] + ","+ this.values[1] +")";
+                }
                 //限制地图数据为当月数据
-                var date=new Date();
-                date.setDate(1);
-                date.setMinutes(0);
-                date.setHours(0);
-                date.setSeconds(0);
-                whereStr += "~and(t2,gte," + date.getTime() + ")";
+                // var date=new Date();
+                // date.setDate(1);
+                // date.setMinutes(0);
+                // date.setHours(0);
+                // date.setSeconds(0);
+                // whereStr += "~and(t2,gte," + date.getTime() + ")";
 
 
                 whereStr += ")";
@@ -179,6 +224,8 @@
             async SetMapZoom(maps)
             {
                 let that = this;
+                that.dmap.removeXYLayer("网格中心");
+                that.dmap.removeXYLayer("图标");
                 //自定义的icon图标
                 var icon = new maps.IconMarker({
                     icon: 'fa-bandcamp',//icon名称参考：http://www.fontawesome.com.cn/faicons/
@@ -200,7 +247,7 @@
                         type: "Cluster",
                         icon: icon,
                         minZoom: 1,
-                        maxZoom: 3
+                        maxZoom: 4
                     },
                     //响应动作
                     action: {
@@ -209,7 +256,7 @@
                         bindClick: function (item) {
                             var eventid = item.eventid;
                             that.eventinfoshow = true;
-                            that.eventinfourl = "http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id=" + eventid;
+                            that.eventinfourl = "http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id=" + eventid+"&isShow=1&areaCode="+that.orguid;
                         }
                     }
                 };
@@ -231,8 +278,8 @@
                     symbol: {
                         type: "Marker",
                         icon: icon,
-                        minZoom: 4,
-                        maxZoom: 6,
+                        minZoom: 5,
+                        maxZoom: 9,
                     },
                     //响应动作
                     action: {
@@ -241,11 +288,11 @@
                         bindClick: function (item) {
                             var eventid = item.eventid;
                             that.eventinfoshow = true;
-                            that.eventinfourl = "http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id=" + eventid;
+                            that.eventinfourl = "http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id=" + eventid+"&isShow=1&areaCode="+that.orguid;
                         }
                     }
                 };
-                this.dmap.addAutoXYLayer("图标", "center_theme_flashpointmap", optTB, function (data) {
+                this.dmap.addXYLayer("图标", "center_theme_flashpointmap", optTB, function (data) {
 
                 })
 
@@ -256,34 +303,39 @@
             async changeThemeEvent(themeId,types)
             {
                 let that =  this;
-                that.themeId = themeId;
-                that.type = types;
+                console.log(that.values);
+                if(themeId != "")
+                {
+                    that.themeId = themeId;
+                    that.type = types;
+                }
+
                 let queryWhere = that.getQuery();
                 if (that.dmap === null || that.dmap === undefined || that.dmap === "") {
                     that.initmap(that.orguid , that.orgname);
                 }
-                // if(that.orguid == '001')
-                // {
-                //     that.dmap.centerAndZoom(new JSMap.Point(121.6155, 29.7055), 0);
-                // }else{
-                //         if(that.orguid.length == 6)
-                //         {
-                //             zjdata=that.dmap.getLayerXSQ(that.orgname)
-                //             //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
-                //         }else{
-                //             zjdata=that.dmap.getLayerJD(that.orgname)
-                //             //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
-                //         }
-                //         zjdata.options.fill=false
-                //         that.dmap.removeflyTo();
-                //         that.dmap.flyToLayer(zjdata)
-                //
-                // }
-                that.dmap.removeXYLayer("网格中心");
-                that.dmap.removeAutoXYLayer("图标");
+
                 this.RemoveQXFont();
                 this.RemoveZJFont();
+                let zjdata = null;
+                if(that.orguid!= '001'){
+                    if(that.orguid.length == 6)
+                    {
+                        zjdata=that.dmap.getLayerXSQ(that.orgname)
+                        //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
+                    }else{
+                        zjdata=that.dmap.getLayerJD(that.orgname)
+                        //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
+                    }
+                }
+                that.dmap.removeflyTo()
+                //添加围栏
+                that.dmap.clearFenceLayer()
 
+                zjdata.options.fill=false
+                that.dmap.flyToLayer(zjdata)
+                //添加围栏
+                that.dmap.setFenceLayer(zjdata)
                 that.SetMapZoom(that.myJSMap);
             }
             ,
@@ -291,25 +343,25 @@
             async SetQXFont(){
                 //区县标记
                 let optQXName = {
-                   data: {
-                       field: "CENTERX,CENTERY,QX_NAME",
-                       x: "CENTERX",
-                       y: "CENTERY",
-                       //sort:"-uv",
-                       value: "QX_NAME",
-                       size: 50
-                   },
-                   symbol: {
-                       type: "Text",
-                       options: {
-                           size: 15,//文字大小
-                           font: '21px Arial',//字体
-                           fillStyle: '#fff',//文字颜色
-                           shadowColor: '#333'
-                       },
-                       minZoom: 1,
-                       maxZoom: 3
-                   }
+                    data: {
+                        field: "CENTERX,CENTERY,QX_NAME",
+                        x: "CENTERX",
+                        y: "CENTERY",
+                        //sort:"-uv",
+                        value: "QX_NAME",
+                        size: 50
+                    },
+                    symbol: {
+                        type: "Text",
+                        options: {
+                            size: 15,//文字大小
+                            font: '21px Arial',//字体
+                            fillStyle: '#fff',//文字颜色
+                            shadowColor: '#333'
+                        },
+                        minZoom: 1,
+                        maxZoom: 4
+                    }
                 };
 
                 this.dmap.addXYLayer("区县注记图", "jsmap_xianshi", optQXName);
@@ -337,8 +389,8 @@
                             fillStyle: 'rgb(212, 130, 101)', //文字颜色
                             shadowColor: '#fff'
                         },
-                        minZoom: 4,
-                        maxZoom: 6
+                        minZoom: 5,
+                        maxZoom: 9
                     }
                 };
                 this.dmap.addXYLayer("镇街注记图", "jsmap_jiedao", optZJName);
@@ -346,7 +398,22 @@
             //去除 - 镇街标记
             async RemoveZJFont(maps){
                 this.dmap.removeXYLayer("镇街注记图");
-            }
+            },
+            //时间格式化
+            async TimeFormat(){
+                let date = new Date()
+                let month = date.getMonth() + 1
+                let day = date.getDate();
+                let year = date.getFullYear();
+                this.values = [year+"-"+month+"-01",year+"-"+month+"-"+day];
+            },
+            //关闭事件详情弹出框
+            cleareventinfo(){
+                this.eventinfourl="";
+                this.eventinfoshow=false;
+                console.log("+++++++++成功调用父方法");
+            },
+
         }
 
     }

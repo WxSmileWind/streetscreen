@@ -148,8 +148,10 @@
             //大屏点击事件
             bigscreenClick(link){
                 //window.location.href = link;
-
-                location.href='#/NineSquaredChild/'+encodeURIComponent(link);
+                //window.location.href = link;
+                window.open(link,"_blank");
+                //location.href='#/NineSquaredChild/'+encodeURIComponent(link);
+                //location.href='#/NineSquaredChild/'+encodeURIComponent(link);
             }
             ,
             pageSizeChange(){
