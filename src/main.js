@@ -12,7 +12,7 @@ import 'vant/lib/icon/local.css';//引用字体css
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 Vue.use(Vant);
-new Vue({
+var vm = new Vue({
   router,
   render: h => h(App)
 }).$mount("#app");

@@ -124,7 +124,7 @@
                                 :autoplay="3000"
                                 :show-indicators="false"
                         >
-                            <van-swipe-item style="height:3.6vh;line-height: 3.6vh;" v-for="(item,idx) in marqueeList"
+                            <van-swipe-item @click="showtzgginfo(item.id)" style="height:3.6vh;line-height: 3.6vh;" v-for="(item,idx) in marqueeList"
                                             :key="idx"><a :title="item.title">{{item.title}}</a></van-swipe-item>
                         </van-swipe>
                     </van-notice-bar>
@@ -158,9 +158,10 @@
                 </div>
             </div>
             <!--地图区域-->
-            <div class="c_map">
+            <div class="c_map" @mouseout="starttofly" @mouseover="stoptofly">
                 <!--地图组件-->
                 <Tiandt ref="tiandt"/>
+                <!--<Tiandt_new ref="tiandt"/>-->
             </div>
             <!--底部各个数值统计-->
             <div class="c_bottom">
@@ -196,7 +197,7 @@
                 </div>
                 <div class="c_bottom_item">
                     <img src="../assets/imgs/img_zfwwcs.png" class="c_bottom_item_img" />
-                    <span class="c_bottom_item_name" style="font-size:0.8rem;line-height: 2vh; ">月度走访任务未完成数</span>
+                    <span class="c_bottom_item_name" style="font-size:0.8rem;line-height: 2vh; ">季度走访任务未完成数</span>
                     <span class="c_bottom_item_value">{{ydzfwwcs}}</span>
                 </div>
             </div>
@@ -430,6 +431,7 @@
                     element-loading-spinner="el-icon-loading"
                     element-loading-background="rgba(0, 0, 0, 0.8)"
                     title="监控"
+                    v-if="videoshow"
                     :visible.sync="videoshow"
                     :modal="true"
                     :modal-append-to-body='false'
@@ -441,6 +443,7 @@
 </template>
 <script>
     import Tiandt from "../components/tiandt";
+    import Tiandt_new from "../components/tiandt_new";
     //接口调用文件
     import index from '@/api/index';
     //接口配置文件
@@ -450,6 +453,7 @@
         //引入子组件
         components: {
             Tiandt,
+            // Tiandt_new
         },
         data(){
             return {
@@ -570,8 +574,8 @@
                 c_top_item_wgzxl:'97%',//网格在线率
                 c_top_item_sjgbl:'21%',//事件关闭率
                 c_top_item_mfwgl:'97%',//满分网格率
-                orgname:'海曙区',//组织名称,默认：招宝山街道
-                orgid:'001001',  //组织id,默认：招宝山街道组织uid
+                orgname:'',//组织名称,默认：招宝山街道
+                orgid:'',  //组织id,默认：招宝山街道组织uid
                 eventslist:[
                     {id:"8a9335c7709bfd980170c88c15b22161",createtime:"2020-09-15 14:54:00",title:"事件描述内容一",src:"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2525576107,3579471363&fm=15&gp=0.jpg"},
                     {id:"8a9335c7709bfd980170c88c15b22161",createtime:"2020-09-15 14:54:00",title:"事件描述内容二",src:"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2116973228,1421477263&fm=26&gp=0.jpg"},
@@ -588,7 +592,8 @@
                 wzss:0,
                 wqzs:0,
                 lqsjs:0,
-                ydzfwwcs:0
+                ydzfwwcs:0,
+                flytomarker:Object
             }
         },
         computed: {
@@ -601,6 +606,12 @@
             },
         },
         watch:{
+            '$route'(to,from){
+                console.log("[watch]监听到路由变化to:",to);
+                console.log("[watch]监听到路由变化from:",from);
+                window.location.reload();
+                //window.reload();
+            },
             changewgynums:{
                 // eslint-disable-next-line no-unused-vars
                 handler(newValue, oldValue) {
@@ -644,36 +655,26 @@
         async created() {
             //动态获取当前时间
             setInterval(this.getNow, 1000);
-            // let {data:data1} = await index.fetchData_post(Api.test,{
-            //     AreaId:'001'
-            //     }
-            // );
-            // this.datalist=data1;
-
-
-            //JSON.parse()
-           //  console.log("++++++++++++data1:",JSON.stringify(data1));
-           // console.log("++++++++++++datalist:",this.datalist);
-           // console.log("++++++++++++datalist.areaCode:",this.datalist.areaCode);
-           // this.bigScreenList = eventslist;
-        },
-        mounted() {
+            this.orgid= this.$route.params.orgid;
+            if(this.orgid==="001"){
+                this.orgname="宁波市";
+            }
+            console.log("+++++++++++++++获取到的orgid:",this.orgid);
             //将vue方法转换为js原生方法
             let _this = this;
             //将vue申明的方法复制给原生js方法，用于onclick方式原生调用
             //cleareventinfo方法用于子iframe，事件详情页调用父方法来关闭当前事件详情弹窗
             window.cleareventinfo = _this.cleareventinfo;
             console.log("+++++++++++++window.cleareventinfo:",window.cleareventinfo);
-
-
             window.showvideo = _this.showvideo;
             console.log("+++++++++++++window.showvideo:",window.showvideo);
             this.getNow();
-
+            //绑定orgname
+            await this.bindorgname();
             //绑定待办事件
             this.binddbsj();
-
-
+            //绑定通知公告
+            this.bindtzgg();
             //绑定人口
             this.bindrk();
             //绑定房屋
@@ -682,7 +683,6 @@
             this.bindqy();
             //绑定网格
             this.bindwg();
-
             //绑定镇街考核
             this.bindStreetkh();
             //绑定职能部门考核
@@ -693,8 +693,6 @@
             this.bindrctx();
             //绑定今日事件
             this.bindjrsj();
-
-
             //绑定问题聚焦
             this.bindwtjj();
             //视窗size改变后重新赋值长宽
@@ -704,12 +702,33 @@
                 window.screenHeight = document.body.clientHeight;
                 that.screenWidth = window.screenWidth;
                 that.screenHeight= window.screenHeight;
-
             };
-            //初始化画镇街行政区划
-            this.$refs.tiandt.initmap(this.orgid,this.orgname);
+        },
+        async mounted() {
+
+
+            //开启今日事件定时器并设置地图marker
+            this.starttofly();
+
+            //setTimeout(this.MarkerOntiandt('1'),10000);
+            //this.MarkerOntiandt('1');
+
+            //
         },
         methods:{
+            //开始今日事件定时器
+            starttofly(){
+                this.flytomarker=setInterval(()=>{
+                    this.bindjrsj();
+                    this.bindautoevent();
+                }, 30000);
+            },
+            //停止今日事件定时器
+            stoptofly(){
+                if(this.flytomarker!==null){
+                    clearInterval(this.flytomarker);
+                }
+            },
             getNow(){
                 let date = new Date()
                 let month = date.getMonth() + 1
@@ -766,33 +785,43 @@
                // e.currentTarget.classList.add('tab_on');
                 this.xqgk_menutab=i;
             },
+            //绑定获取组织名称
+            async bindorgname(){
+                //调用通知公告接口
+                let {data:orgnamedata} = await index.fetchData_get(Api.dpzj.orgname,
+                    {"orgcode":this.orgid});
+                this.orgname=orgnamedata[0].name;
+                //初始化画镇街行政区划
+                await this.$refs.tiandt.initmap(this.orgid, this.orgname);
+            },
             //绑定通知公告
             async bindtzgg(){
                 this.tzgg=0;
                 this.tzgglist=[];
-                //  //调用通知公告接口
-                //  let {data:tzggdata} = await index.fetchData_get(Api.dpzj.dydtz,
-                //      {"orgcode":this.orgid});
-                //
-                //  // eslint-disable-next-line no-console
-                //  console.log("+++++获取到的人口数据：",rkdata)
-                //  let datalist=tzggdata;
-                //  this.tzgg=datalist.length;
-                //  this.tzgglist=datalist;
+                 //调用通知公告接口
+                 let {data:tzggdata} = await index.fetchData_get(Api.dpzj.tzgg,
+                     {"orgcode":this.orgid});
+
+                 // eslint-disable-next-line no-console
+                 //console.log("+++++获取到的人口数据：",rkdata)
+                 let datalist=tzggdata;
+                 this.tzgg=datalist.length;
+                 this.tzgglist=datalist;
+                 this.marqueeList=this.tzgglist;
             },
             //绑定待办事件
             async binddbsj(){
                 this.dbsj=0;
                 this.dbsjlist=[];
-                //  //调用待办事件接口
-                //  let {data:dbsjdata} = await index.fetchData_get(Api.dpzj.dbsj,
-                //      {"orgcode":this.orgid});
-                //
-                //  // eslint-disable-next-line no-console
-                //  console.log("+++++获取到的人口数据：",rkdata)
-                //  let datalist=dbsjdata;
-                //  this.dbsj=datalist.length;
-                //  this.dbsjlist=datalist;
+                 //调用待办事件接口
+                 let {data:dbsjdata} = await index.fetchData_get(Api.dpzj.dbsj,
+                     {"orgcode":this.orgid});
+
+                 // eslint-disable-next-line no-console
+                 console.log("+++++获取到的待办事件：",dbsjdata)
+                 let datalist=dbsjdata;
+                 this.dbsj=datalist.length;
+                 this.dbsjlist=datalist;
             },
             //绑定人口数据
             async bindrk() {
@@ -1124,16 +1153,16 @@
                 let data1 = [60, 73, 85, 40, 90];
 
 
-                // data1=[]
-                // let {data:wxzbdata} = await index.fetchData_get(Api.dpzj.wxzb,
-                //               {"orgcode":this.orgid});
-                // let datalist=wxzbdata;
-                // data1.push(datalist.wgcq);
-                // data1.push(datalist.lxbz);
-                // data1.push(datalist.xxdb);
-                // data1.push(datalist.czzl);
-                // data1.push(datalist.yxsj);
-                // console.log("[镇街考核]++++++++++data1:",data1);
+                data1=[]
+                let {data:wxzbdata} = await index.fetchData_get(Api.dpzj.wxzb,
+                              {"orgcode":this.orgid});
+                let datalist=wxzbdata;
+                data1.push(datalist[0].wgcq);
+                data1.push(datalist[0].lxbz);
+                data1.push(datalist[0].xxdb);
+                data1.push(datalist[0].czzl);
+                data1.push(datalist[0].yxsj);
+                console.log("[镇街考核]++++++++++data1:",data1);
 
                 this.$nextTick(() => {
                     //日常考核-镇街考核
@@ -1227,7 +1256,7 @@
                             areaStyle: {},
                             data: [
                                 {
-                                    value: [60, 73, 85, 40, 90],
+                                    value: data1,
                                     name: '五项指标指数'
                                 }
                             ]
@@ -1411,8 +1440,8 @@
               //  this.eventslist=datalist;
 
 
-                if(datalist.length>=5){
-                      for(let i=0;i<5;i++){
+                if(datalist.length>=10){
+                      for(let i=0;i<10;i++){
                           this.eventslist.push(datalist[i]);
                       }
                 }
@@ -1426,12 +1455,15 @@
                 this.eventslist.forEach(item=>{
                   item.src=item.imgurl;
                 });
+
+
+            },
+            async bindautoevent(){
+                this.MarkerOntiandt('1');
             },
             //绑定问题聚焦
             async bindwtjj(){
-
                 let that=this;
-
                 let data1=[
                     {value: 200, name: '排摸湖北籍人员'},
                     {value: 335, name: '电瓶车充电'},
@@ -1439,26 +1471,21 @@
                     {value: 170, name: '精神病异常'},
                     {value: 235, name: '健身器材损坏'},
                     {value: 400, name: '施工扰民'}
-                    ];
+                ];
+                //调用问题聚焦
+                data1=[];
+                this.wtjjlist=[];
+                let {data:wtjjdata} = await index.fetchData_get(Api.dpzj.wtjj,
+                              {"orgcode":this.orgid});
+                let datalist=wtjjdata;
 
-
-                // //调用问题聚焦
-                // data1=[];
-                // let {data:wtjjdata} = await index.fetchData_get(Api.dpzj.wtjj,
-                //               {"orgcode":this.orgid});
-                // let datalist=wtjjdata;
-                //
-                // datalist.map(item=>{
-                //     let obj={...item};
-                //     wtjjlist.push(obj);
-                //     data1.push({
-                //      value: obj.value, name: obj.name
-                //     });
-                //
-                //
-                //
-                //
-                // });
+                datalist.map(item=>{
+                    let obj={...item};
+                    this.wtjjlist.push(obj);
+                    data1.push({
+                     value: obj.value, name: obj.name
+                    });
+                });
 
                 this.$nextTick(()=> {
 
@@ -1474,27 +1501,26 @@
                             formatter: '{a} <br/>{b} : {c} ({d}%)'
                         },
 
-                        visualMap: {
-                            show: false,
-                            min: 80,
-                            max: 600,
-                            inRange: {
-                                colorLightness: [0, 1]
-                            }
-                        },
-                        color:['#d56e6b','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
+                        // visualMap: {
+                        //     show: false,
+                        //     min: 80,
+                        //     max: 600,
+                        //     inRange: {
+                        //         colorLightness: [0, 1]
+                        //     }
+                        // },
                         series: [
                             {
                                 name: '问题聚焦',
                                 type: 'pie',
-                                radius: '75%',
+                                radius: '60%',
                                 center: ['50%', '50%'],
-                                data: data1.sort(function (a, b) { return a.value - b.value; }),
-                                roseType: 'radius',
+                                data: data1,
                                 label: {
                                     color: '#fff',
                                     fontSize:14
                                 },
+                                selectedMode: 'single',
                                 labelLine: {
                                     lineStyle: {
                                         color: 'rgba(255, 255, 255, 0.3)'
@@ -1513,12 +1539,17 @@
                             }
                         ]
                     });
+
+
+                    let that=this;
                     this.chartwtjj.on('click', function (params) {
-                        // console.log("+++++++++++++++params:",params);
-                        // let item=that.wtjjlist.find((item) => item.name == params.name);
-                        // console.log("+++++++++++++++查找到的问题聚焦id:",item);
-                        // console.log("+++++++++++++++params.name：",params.name);
-                        //console.log("+++++++++++++++params.seriesName：",params.seriesName);
+
+                     if(that.wtjjlist[params.dataIndex].id.length>20){
+                         that.$refs.tiandt.changeThemeEvent(that.wtjjlist[params.dataIndex].id,"");
+                     }
+                     else{
+                         that.$refs.tiandt.changeThemeEvent("",that.wtjjlist[params.dataIndex].id);
+                     }
                     });
                 });
             },
@@ -1534,50 +1565,76 @@
                 let typename='一级事件';
                 let iconcolor='#ff0000';
                 let MarkerList=[];
-                if(type==='1'){
-                    typename='一级事件';
-                    iconcolor='#dd675b';
-                    MarkerList=[{
-                        x:'121.711913',
-                        y:'29.9546517',
-                        title:'['+typename+']事件一',
-                        content:'事件一内容描述',
-                        iconColor:iconcolor
-                    },{
-                        x:'121.715475',
-                        y:'29.959029',
-                        title:'['+typename+']事件二',
-                        content:'事件二内容描述',
-                        iconColor:iconcolor
-                    }];
-                }
-                else if(type==='2'){
-                    typename='二级事件';
-                    iconcolor='#ffd622';
-                    MarkerList=[{
-                        x:'121.7101106',
-                        y:'29.9660671',
-                        title:'['+typename+']事件一',
-                        content:'事件一内容描述',
-                        iconColor:iconcolor
-                    },{
-                        x:'121.7089519',
-                        y:'29.9599303',
-                        title:'['+typename+']事件二',
-                        content:'事件二内容描述',
-                        iconColor:iconcolor
-                    }];
-                }
-                else if(type==='3'){
-                    typename='三级事件';
-                    iconcolor='#08c7f1';
-                }
+
+
+                this.eventslist.forEach(item=>{
+                    //item.src=item.imgurl;
+                    // if(item.x!="0"&&item.x!=null){
+                    //
+                    // }
+
+                    MarkerList.push({
+                                 x:item.x,
+                                 y:item.y,
+                                 id:item.id,
+                                 title:item.title,
+                                 iconColor:iconcolor
+                             });
+                });
+
+                // if(type==='1'){
+                //     typename='一级事件';
+                //     iconcolor='#dd675b';
+                //     MarkerList=[{
+                //         x:'121.54131004622892',
+                //         y:'29.863637067043463',
+                //         id:'8a9335c77458bae201749075e208014a',
+                //         title:'['+typename+']事件一',
+                //         content:'事件一内容描述',
+                //         iconColor:iconcolor
+                //     },{
+                //         x:'121.53588399604126',
+                //         y:'29.875790846180443',
+                //         id:'8a9335c77458bae201749075e208014a',
+                //         title:'['+typename+']事件二',
+                //         content:'事件二内容描述',
+                //         iconColor:iconcolor
+                //     }];
+                //
+                //     console.log("+++++++++++++111MarkerList:",MarkerList);
+                // }
+                // else if(type==='2'){
+                //     typename='二级事件';
+                //     iconcolor='#ffd622';
+                //     MarkerList=[{
+                //         x:'121.7101106',
+                //         y:'29.9660671',
+                //         title:'['+typename+']事件一',
+                //         content:'事件一内容描述',
+                //         iconColor:iconcolor
+                //     },{
+                //         x:'121.7089519',
+                //         y:'29.9599303',
+                //         title:'['+typename+']事件二',
+                //         content:'事件二内容描述',
+                //         iconColor:iconcolor
+                //     }];
+                // }
+                // else if(type==='3'){
+                //     typename='三级事件';
+                //     iconcolor='#08c7f1';
+                // }
 
                 // 调用天地图子组件中的方法
-               // this.$refs.tiandt.setmarker(MarkerList);
+                // this.$refs.tiandt.setmarker(MarkerList);
 
+                //根据问题聚焦的饼图点击事件触发显示事件定位
+                //this.$refs.tiandt.changeThemeEvent("90ff1917-9560-4ec1-a0d6-184326e1af6d","");
+                console.log("+++++++++++++type:",type);
+                console.log("+++++++++++++MarkerList:",MarkerList);
 
-                this.$refs.tiandt.changeThemeEvent("90ff1917-9560-4ec1-a0d6-184326e1af6d","");
+                //用于测试
+                this.$refs.tiandt.setmarker(MarkerList);
             },
             //点击待办事件弹出框
             showdbsj(){
@@ -1607,6 +1664,12 @@
                 this.infourl="";
                 this.infourl="http://10.19.181.153/grid/notice/f.show?id="+row.id+"&random="+Math.floor(Math.random()*450001);
             },
+            showtzgginfo(id){
+                this.infoshow=true;
+                this.infotitle="公告详情";
+                this.infourl="";
+                this.infourl="http://10.19.181.153/grid/notice/f.show?id="+id+"&random="+Math.floor(Math.random()*450001);
+            },
             //显示事件详情
             showeventinfo(obj){
                 this.eventinfourl="";
@@ -1626,10 +1689,8 @@
 
 
                console.log("++++++++++获取到的视频channelId：",channelId);
-
                 let videodata = await index.fetchData_get(Api.video+"?id="+channelId,null);
                 let data1= JSON.parse(JSON.parse(videodata));
-
                console.log("++++++++++获取到的视频流videodata：",videodata);
 
                 this.videourl="http://10.68.129.154:8119/pages/Childs/PulmonitisProblem/video.html?url="+encodeURIComponent(data1.url);

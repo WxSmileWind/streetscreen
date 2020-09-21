@@ -7,13 +7,17 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
+    path: "/index/:orgid",
     name: "index",
     component: index
   },
   {
     path: '/Tiandt',
     component: ()=> import("../components/tiandt.vue")
+  },
+  {
+    path: '/Tiandt_new',
+    component: ()=> import("../components/tiandt_new.vue")
   },
   {
     path: '/404',

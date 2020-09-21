@@ -31,6 +31,10 @@
 </template>
 
 <script>
+    //接口调用文件
+    import index from '@/api/index';
+    //接口配置文件
+    import {Api} from '@/api/api';
     export default {
         name: "tiandt",
         data(){
@@ -44,10 +48,13 @@
                 orguid:'001',
                 orgname:'',
                 type:'',
-                themeId:'f26c125f-86d6-40fe-a446-b7cb837b57fc',
+               // themeId:'4d18c15c-ae7c-4630-9403-940a7df4fab9',
+                themeId:'',
                 stime:'',
                 etime:'',
-                values:['20']
+                values:['20'],
+                whereStr:'',
+                videolist:[]
             }
         },
 
@@ -84,10 +91,12 @@
                         if(orgCode!= '001'){
                             if(orgCode.length == 6)
                             {
-                                zjdata=that.dmap.getLayerXSQ(that.orgname)
+                                zjdata=that.dmap.getLayerXSQ(that.orgname);
                                 //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
                             }else{
-                                zjdata=that.dmap.getLayerJD(that.orgname)
+                                zjdata=that.dmap.getLayerJD(that.orgname);
+                                console.log("[mappp]+++++++++++++orgname:",orgname);
+                                console.log("[mappp]+++++++++++++zjdata:",zjdata);
                                 //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
                             }
                             /*
@@ -113,7 +122,6 @@
 
                         //修改部分
                         that.dmaplayer=JSMap;
-                        console.log("+++++++++that.dmaplayer:",that.dmaplayer);
                         window.dmaplayer=that.dmaplayer;
 
                         //修改部分
@@ -121,7 +129,6 @@
 
                         //修改部分
                         that.dmaplayer=JSMap;
-                        console.log("+++++++++that.dmaplayer:",that.dmaplayer);
                         window.dmaplayer=that.dmaplayer;
                         // // eslint-disable-next-line no-undef
                         // let marker2 = new JSMap.Marker(new JSMap.Point(121.533,29.87));
@@ -136,10 +143,13 @@
                     });
                 });
             },
-            //设置标记点位
+            //设置标记点位, 2020/9/17 【吴啸】最新修改
             async setmarker(MarkerList){
                 // await this.initmap();
+
+
                 let that=this;
+                console.log("[天地图子组件]+++++++++++++that.dmap:",that.dmap);
                 //自定义图标
                 window.require(["jsmap"], function () {
                     that.dmap.removeOverlayGroup("eventmarkerlist");
@@ -161,10 +171,14 @@
                         });
                         // eslint-disable-next-line no-undef
                         let marker=new JSMap.Marker(new JSMap.Point(item.x,item.y),{icon:icon});
-                        marker.bindPopup("<h1>"+item.title+"</h1><p>"+item.content+"</p>");
-                        // marker.on("click",function(e){
-                        //     alert(e.target)
-                        // })
+                        //marker.bindPopup("<h1>"+item.title+"</h1><p>"+item.content+"</p>");
+                        marker.on("click",function(e){
+                            console.log("++++++++++++++e:",e);
+                            console.log("++++++++++++++e.target:",e.target);
+                            that.eventinfoshow = true;
+                            that.eventinfourl = "http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id=" + item.id+"&isShow=1&areaCode="+that.orguid;
+                            //alert(e.target)
+                        })
                         markerlist.push(marker);
                     });
 
@@ -172,114 +186,45 @@
                     let overlayGroup2=new JSMap.OverlayGroup(markerlist);
                     overlayGroup2.id="eventmarkerlist";
                     that.dmap.addOverlayGroup(overlayGroup2);
-                    //that.dmap.addOverlay(marker);
-                });
-            },
-            //地图查询条件
-            async getQuery(){
-                let whereStr = "(";
-                //获得查询条件
-                //专题编号
-                if (this.themeId !== "" && this.themeId !== null && this.themeId !== undefined) {
-                    whereStr += "(themeid,eq," + this.themeId + ")";
-                }
-                //22类判断
-                else if (this.type !== "" && this.type !== null && this.type !== undefined) {
-                    whereStr += "~and(t6,eq," + this.type + ")";
-                }
-                //区域判断
-                if (this.orguid !== "001") {
-                    if(this.orguid.length == 6)
-                    {
-                        whereStr += "~and(t1,eq," + this.orguid + ")";
-                        //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
-                    }else{
-                        whereStr += "~and(t7,eq," + this.orguid + ")";
-                        //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
+                    //飞行至这些点位
+                    that.dmap.flyToLayer(markerlist[0]);
+
+
+                    for (const item of MarkerList) {
+                        that.getvideolist(item);
                     }
 
-                }
-                if(this.values.length >0)
-                {
-                    let sTime = new Date(this.values[0]+' 00:00:00').getTime();
-                    let eTime = new Date(this.values[1]+' 00:00:00').getTime();
-                    whereStr += "~and(createtime,gte," + this.values[0] + " 00:00:00)";
-                    whereStr += "~and(createtime,lte," + this.values[1] + " 00:00:00)";
-                    //whereStr += "~and(createtime,bw," + this.values[0] + ","+ this.values[1] +")";
-                }
-                //限制地图数据为当月数据
-                // var date=new Date();
-                // date.setDate(1);
-                // date.setMinutes(0);
-                // date.setHours(0);
-                // date.setSeconds(0);
-                // whereStr += "~and(t2,gte," + date.getTime() + ")";
-
-
-                whereStr += ")";
-                console.log(whereStr);
-                return whereStr;
+                });
             },
             //添加图层
             async SetMapZoom(maps)
             {
                 let that = this;
+                let imageSrc = require("../assets/MapIcons/corp1.png");
+               // let imageSrcs = require("../assets/MapIcons/corp{val1}.png");
                 that.dmap.removeXYLayer("网格中心");
                 that.dmap.removeXYLayer("图标");
+                //查询条件
+                that.getQuery();
                 //自定义的icon图标
-                var icon = new maps.IconMarker({
-                    icon: 'fa-bandcamp',//icon名称参考：http://www.fontawesome.com.cn/faicons/
-                    iconColor: 'white',//小图标的颜色
-                    markerColor: 'yellow',//大图标的样式
-                    prefix: 'fa'
-                });
-                //var icon = that.dmap.IconPulse("/pages/img/corp0.png", new that.dmap.Size(30, 40));
-                var opt = {
-                    data: {
-                        //数据表存放地址
-                        field: "x,y,val1,themeid,diffid,orgqxname,eventid",
-                        where: that.getQuery(),
-                        x: "x",
-                        y: "y",
-                        size: 20000
-                    },
-                    symbol: {
-                        type: "Cluster",
-                        icon: icon,
-                        minZoom: 1,
-                        maxZoom: 4
-                    },
-                    //响应动作
-                    action: {
-                        //bindTooltip: "<iframe style='width:1480px;height:602px;border: 0px;' scrolling='no' src='/pages/EventDetailRequest.html?id={eventid}')></iframe>",
-                        //bindPopup:"<iframe style='width:315px;height:150px;border: 0px;' scrolling='no' src='popupFrame.html?bh={bh}')></iframe>",
-                        bindClick: function (item) {
-                            var eventid = item.eventid;
-                            that.eventinfoshow = true;
-                            that.eventinfourl = "http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id=" + eventid+"&isShow=1&areaCode="+that.orguid;
-                        }
-                    }
-                };
-
-                this.dmap.addXYLayer("网格中心", "center_theme_flashpointmap", opt)
-
-
-                var optData = {
+                let optData = {
                     //数据结构
-                    field: "x,y,val1,themeid,diffid,orgqxname,eventid",
-                    where: that.getQuery(),
-                    x: "x", //x字段(经度)
+                    field: "val1,themeid,diffid,orgqxname,eventid,createtime,t1,t6,t7,themeid",
+                    where:that.whereStr
+                        //"(themeid,eq," + that.themeId + ")"+"~and(t1,eq," + that.orguid + ")"+"~and(createtime,gte," + that.values[0] + " 00:00:00)"+"~and(createtime,lte," + this.values[1] + " 00:00:00)",
+                    ,x: "x", //x字段(经度)
                     y: "y", //y字段（纬度）
-                    size: 20000
+                    size: 5000
                 };
                 //定义样式:图标
-                var optTB = {
+                let optTB = {
                     data: optData,
                     symbol: {
-                        type: "Marker",
-                        icon: icon,
-                        minZoom: 5,
-                        maxZoom: 9,
+                        type: "Cluster",
+                        icon: new maps.Icon(imageSrc, new maps.Size(30, 40)),
+                        bindIconField: 'http://10.68.129.154:8119/pages/NSquared/static/img/corp{val1}.png',
+                        minZoom: 1,
+                        maxZoom: 4,
                     },
                     //响应动作
                     action: {
@@ -292,7 +237,31 @@
                         }
                     }
                 };
-                this.dmap.addXYLayer("图标", "center_theme_flashpointmap", optTB, function (data) {
+
+                this.dmap.addXYLayer("网格中心", "center_theme_flashpointmap", optTB)
+
+                //定义样式:图标
+                let optTB1 = {
+                    data: optData,
+                    symbol: {
+                        type: "Marker",
+                        icon: new maps.Icon(imageSrc, new maps.Size(30, 40)),
+                        bindIconField: 'http://10.68.129.154:8119/pages/NSquared/static/img/corp{val1}.png',
+                        minZoom: 5,
+                        maxZoom: 9,
+                  },
+                    //响应动作
+                    action: {
+                        //bindTooltip: "<iframe style='width:1480px;height:602px;border: 0px;' scrolling='no' src='/pages/EventDetailRequest.html?id={eventid}')></iframe>",
+                        //bindPopup: "<iframe style='width:315px;height:150px;border: 0px;' scrolling='no' src='/pages/EventDetailRequest.html?id={eventid}')></iframe>",
+                        bindClick: function (item) {
+                            var eventid = item.eventid;
+                            that.eventinfoshow = true;
+                            that.eventinfourl = "http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id=" + eventid+"&isShow=1&areaCode="+that.orguid;
+                        }
+                    }
+                };
+                this.dmap.addXYLayer("图标", "center_theme_flashpointmap", optTB1, function (data) {
 
                 })
 
@@ -303,14 +272,12 @@
             async changeThemeEvent(themeId,types)
             {
                 let that =  this;
-                console.log(that.values);
                 if(themeId != "")
                 {
                     that.themeId = themeId;
                     that.type = types;
                 }
 
-                let queryWhere = that.getQuery();
                 if (that.dmap === null || that.dmap === undefined || that.dmap === "") {
                     that.initmap(that.orguid , that.orgname);
                 }
@@ -324,21 +291,25 @@
                         zjdata=that.dmap.getLayerXSQ(that.orgname)
                         //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
                     }else{
+                        console.log("[map]++++++++++++that.orgname:",that.orgname);
                         zjdata=that.dmap.getLayerJD(that.orgname)
+                        console.log("[map]++++++++++++zjdata:",zjdata);
                         //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
                     }
                 }
-                that.dmap.removeflyTo()
-                //添加围栏
-                that.dmap.clearFenceLayer()
+                if(that.orguid!= '001'){
+                    that.dmap.removeflyTo()
+                    //添加围栏
+                    that.dmap.clearFenceLayer()
 
-                zjdata.options.fill=false
-                that.dmap.flyToLayer(zjdata)
-                //添加围栏
-                that.dmap.setFenceLayer(zjdata)
+                    zjdata.options.fill=false
+                    that.dmap.flyToLayer(zjdata)
+                    //添加围栏
+                    that.dmap.setFenceLayer(zjdata)
+                }
+
                 that.SetMapZoom(that.myJSMap);
-            }
-            ,
+            },
             //区县标记
             async SetQXFont(){
                 //区县标记
@@ -405,15 +376,120 @@
                 let month = date.getMonth() + 1
                 let day = date.getDate();
                 let year = date.getFullYear();
-                this.values = [year+"-"+month+"-01",year+"-"+month+"-"+day];
+
+                let currentday=year+"-"+(month>9?month:('0'+month))+"-"+day;
+
+                switch (month) {
+                    case 1:
+                    case 2:
+                    case 3:
+                        month+=9;
+                        year--;
+                        break;
+                        default:
+                            month-=3;
+                            break;
+
+                }
+
+                this.values = [year+"-"+(month>9?month:('0'+month))+"-01",currentday];
             },
             //关闭事件详情弹出框
             cleareventinfo(){
                 this.eventinfourl="";
                 this.eventinfoshow=false;
-                console.log("+++++++++成功调用父方法");
             },
+            //地图查询条件
+            async getQuery() {
+                let whereStr = "";
+                //获得查询条件
+                //专题编号
+                if (this.themeId !== "" && this.themeId !== null && this.themeId !== undefined) {
+                    whereStr += "(themeid,eq," + this.themeId + ")";
+                }
+                //22类判断
+                else if (this.type !== "" && this.type !== null && this.type !== undefined) {
+                    whereStr += "(t6,eq," + this.type + ")";
+                }
+                //区域判断
+                if (this.orguid !== "001") {
+                    if(this.orguid.length == 6)
+                    {
+                        if(whereStr.length>0){
+                            whereStr += "~and(t1,eq," + this.orguid + ")";
+                        }
+                        else{
+                            whereStr += "(t1,eq," + this.orguid + ")";
+                        }
+                        //zjdata = that.dmap.dbop.getData("(TL,eq,"+orgCode+")","lh_mdjf_qx_wst");  //面
+                    }else{
 
+                        if(whereStr.length>0){
+                            whereStr += "~and(t7,eq," + this.orguid + ")";
+                        }
+                        else{
+                            whereStr += "(t7,eq," + this.orguid + ")";
+                        }
+                        //zjdata = that.dmap.dbop.getData("(JZ_NUMBER,eq,"+orgCode+")","lh_mdjf_jiedao_wst");  //面
+                    }
+
+                }else{
+                    whereStr += "(t1,like," + this.orguid + "~)";
+                }
+                if(this.values.length >0)
+                {
+                    let sTime = new Date(this.values[0]+' 00:00:00').getTime();
+                    let eTime = new Date(this.values[1]+' 00:00:00').getTime();
+                    whereStr += "~and(createtime,gte," + this.values[0] + " 00:00:00)";
+                    whereStr += "~and(createtime,lte," + this.values[1] + " 00:00:00)";
+                    //whereStr += "~and(createtime,bw," + this.values[0] + ","+ this.values[1] +")";
+                }
+                //限制地图数据为当月数据
+                // var date=new Date();
+                // date.setDate(1);
+                // date.setMinutes(0);
+                // date.setHours(0);
+                // date.setSeconds(0);
+                // whereStr += "~and(t2,gte," + date.getTime() + ")";
+                this.whereStr = whereStr;
+
+            },
+            //根据X和Y坐标获得视频标记marklist，2020/9/17 【吴啸】最新修改
+            async getvideolist(obj){
+                let that=this;
+                let videolist = await index.fetchData_get(Api.videomarkerlist+"?x="+obj.x+"&y="+obj.y+"",null);
+                let data1= JSON.parse(videolist);
+                let items = [];
+                for (let i = 0; i < data1.length; i++) {
+                    items.push({ "channelId": data1[i].channelId, "lng": data1[i].gpsX, "lat": data1[i].gpsY, "name": data1[i].name });
+                }
+                console.log("[天地图组件]+++++++++++++++获取到videomarkerlist:",items);
+                //创建附近视频标记点位
+                for (let i = 0; i < items.length; i++) {
+                    let item = items[i];
+                    //自定义图片符号
+                    // var icon = jsMap.Icon("/pages/images/sp1.png", new jsMap.Size(45, 60));
+                    let icon=new that.myJSMap.IconMarker({
+                        icon: 'fa-camera',
+                        iconColor:'#ff0000',//小图标的颜色
+                        markerColor: 'white',//大图标的样式
+                        prefix: 'fa'
+                    });
+                    let pnt = new that.myJSMap.Point(item.lng, item.lat);
+                    let marker = new that.myJSMap.Marker(pnt, { icon: icon });
+                    let mid = "event_video_point" + item.channelId;
+                    marker.id = mid;
+                    marker.data = { "id": mid, "channelId": item.channelId, name: item.name };
+                    marker.bindTooltip(item.name);
+                    //绑定数据和事件
+                    marker.on("click", function (e) {
+                        //调用父组件的showvideo方法
+                        window.parent.showvideo(item.channelId);
+                    })
+                    that.dmap.addOverlay(marker);
+                    //hesc_i_eventOverlays.push({ "id": mid, "layType": "event_video_point" });
+                }
+            }
         }
 
     }

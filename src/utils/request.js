@@ -63,15 +63,23 @@ service.interceptors.request.use(
 service.interceptors.response.use(
     response => {
        // console.log();
-        if(response.status === 200){
-            if (response.data.code == 200||response.data.code == 0) {
-                return response.data;
+
+       // console.log("+++++++++++++response:",JSON.stringify(response));
+        console.log("+++++++++++++response.config.url:",response.config.url);
+        if(response.config.url.indexOf('GetVideoUrlPath')>0||response.config.url.indexOf('GetVideoNearXYCOND')>0){
+            return response.data;
+        }
+        else{
+            if(response.status === 200){
+                if (response.data.code == 200||response.data.code == 0) {
+                    return response.data;
+                }
+                else{
+                   // Message.error('['+JSON.stringify(response.config.url)+']接口返回错误,错误内容：'+response.data.msg);
+                    return Promise.reject();
+                }
+               // console.log("+++++++++++++response:",JSON.stringify(response));
             }
-            else{
-                Message.error('['+JSON.stringify(response.config.url)+']接口返回错误,错误内容：'+response.data.msg);
-                return Promise.reject();
-            }
-           // console.log("+++++++++++++response:",JSON.stringify(response));
         }``
 
 
