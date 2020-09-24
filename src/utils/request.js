@@ -52,13 +52,6 @@ service.interceptors.request.use(
     }
 );
 
-// {
-//     data:[],
-//      msg:'',
-//     code:200
-// }
-
-
 // 添加响应拦截器
 service.interceptors.response.use(
     response => {
@@ -66,7 +59,7 @@ service.interceptors.response.use(
 
        // console.log("+++++++++++++response:",JSON.stringify(response));
         console.log("+++++++++++++response.config.url:",response.config.url);
-        if(response.config.url.indexOf('GetVideoUrlPath')>0||response.config.url.indexOf('GetVideoNearXYCOND')>0){
+        if(response.config.url.indexOf('GetVideoUrlPath')>0||response.config.url.indexOf('GetVideoNearXYCOND')>0||response.config.url.indexOf('GetCurEventADetail')>0||response.config.url.indexOf('GetDingTalkVideo')>0){
             return response.data;
         }
         else{

@@ -14,6 +14,7 @@ const streetbaseURL = "http://10.68.129.143/reporttest/dpzj/";
 
 export const Api = {
         sc_list:baseURL+"/CenterBCManage1/GetLists",               //获得大屏列表
+        //镇街大屏首页接口api
         dpzj:{
             rk:streetbaseURL+"/rk.ashx",               //人口
             fw:streetbaseURL+"/fw.ashx",               //房屋
@@ -27,9 +28,19 @@ export const Api = {
             wtjj:streetbaseURL+"/wtjj.ashx",           //问题聚焦
             dbsj:streetbaseURL+"/dbsj.ashx",           //待办事件
             tzgg:streetbaseURL+"/tzgg.ashx",           //待阅读通知
-            orgname:streetbaseURL+"/orgname.ashx",        //获取组织名称
+            orgname:streetbaseURL+"/orgname.ashx",     //获取组织名称
         },
-        video:"http://10.68.129.154:8119/BigScreen/Theme/GetVideoUrlPath",
-        videomarkerlist:"http://10.68.129.154:8119/BigScreen/Theme/GetVideoNearXYCOND",
+        //郭栋-典型事件接口
+        eventdx: {
+            eventinfo: "http://10.68.129.143/reporttest/dpnew//eventinfo.ashx",              //事件详情接口
+        },
+        //廖红-相关接口
+        lh: {
+            dingtalk: "http://10.68.129.154:8119/BigScreen/Theme/GetDingTalkVideo",//钉钉视频连线接口
+            eventinfo: "http://10.68.129.154:8119/BigScreen/Theme/GetCurEventADetail"//事件详情接口
+        },
+        video:"http://10.68.129.154:8119/BigScreen/Theme/GetVideoUrlPath",   //根据channelId获取监控视频播放地址
+        videomarkerlist:"http://10.68.129.154:8119/BigScreen/Theme/GetVideoNearXYCOND",//根据XY轴获取附近监控点位
+
 };
 window.Api = Api;

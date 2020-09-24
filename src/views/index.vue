@@ -132,7 +132,7 @@
             </div>
             <!--头部各个数值统计-->
             <div class="c_panner">
-                <div @click="MarkerOntiandt('1')" class="c_panner_item" @mouseover="MoveOnCards($event)" @mouseout="MoveOutCards($event)">
+                <div @click="showNeventinfo('8a9335c8749693940174bdb751d91a9a')" class="c_panner_item" @mouseover="MoveOnCards($event)" @mouseout="MoveOutCards($event)">
                      <span class="c_panner_item_value">{{c_top_item_yjsj}}</span>
                      <span class="c_panner_item_name">一级事件</span>
                 </div>
@@ -226,7 +226,7 @@
                         <el-carousel-item v-for="(item,index) in eventslist" :key="index" >
                              <div style="width:100%;height:27vh;float:left;position: relative; border-radius: 10px;cursor:pointer;">
                                  <el-image
-                                         @click="showeventinfo(item.id)"
+                                         @click="showNeventinfo(item.id)"
                                          style="width: 100%; height:27vh; border-radius: 10px; display: block;"
                                          :src="item.src"
                                  ></el-image>
@@ -439,10 +439,27 @@
             <iframe width="100%" height="600px" :src="videourl">
             </iframe>
         </el-dialog>
+        <!--改造后事件详情 弹出框-->
+        <el-dialog  element-loading-text="拼命加载中"
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="rgba(0, 0, 0, 0.8)"
+                    title="事件详情"
+                    v-if="Neweventinfoshow"
+                    :visible.sync="Neweventinfoshow"
+                    :modal="true"
+                    top="100px"
+                    :modal-append-to-body='false'
+                    width="1200px" >
+            <!--事件详情子组件-->
+            <Eventinfo ref="eventinfo"/>
+        </el-dialog>
     </div>
 </template>
 <script>
+
+    import Eventinfo from "../components/eventinfo";
     import Tiandt from "../components/tiandt";
+
     import Tiandt_new from "../components/tiandt_new";
     //接口调用文件
     import index from '@/api/index';
@@ -452,7 +469,7 @@
         name: "index",
         //引入子组件
         components: {
-            Tiandt,
+            Tiandt,Eventinfo
             // Tiandt_new
         },
         data(){
@@ -593,7 +610,8 @@
                 wqzs:0,
                 lqsjs:0,
                 ydzfwwcs:0,
-                flytomarker:Object
+                flytomarker:Object,
+                Neweventinfoshow:false
             }
         },
         computed: {
@@ -659,6 +677,8 @@
             if(this.orgid==="001"){
                 this.orgname="宁波市";
             }
+
+
             console.log("+++++++++++++++获取到的orgid:",this.orgid);
             //将vue方法转换为js原生方法
             let _this = this;
@@ -705,8 +725,6 @@
             };
         },
         async mounted() {
-
-
             //开启今日事件定时器并设置地图marker
             this.starttofly();
 
@@ -796,8 +814,8 @@
             },
             //绑定通知公告
             async bindtzgg(){
-                this.tzgg=0;
-                this.tzgglist=[];
+                 this.tzgg=0;
+                 this.tzgglist=[];
                  //调用通知公告接口
                  let {data:tzggdata} = await index.fetchData_get(Api.dpzj.tzgg,
                      {"orgcode":this.orgid});
@@ -839,7 +857,6 @@
                  //人口数据
                  let {data:rkdata} = await index.fetchData_get(Api.dpzj.rk,
                      {"orgcode":this.orgid});
-
                  // eslint-disable-next-line no-console
                  console.log("+++++获取到的人口数据：",rkdata)
                  let datalist=rkdata;
@@ -848,7 +865,6 @@
                 data1.forEach(item=>{
                    if(item.name=="境外人员"){
                        item.value=datalist[0].jwry;
-
                    }
                    else if(item.name=="外来人员"){
                        item.value=datalist[0].wlry;
@@ -857,7 +873,6 @@
                        item.value=datalist[0].hjrk;
                    }
                 });
-
                 data2.forEach(item=>{
                     if(item.name=="骨干对象"){
                         item.value=datalist[0].ggdx;
@@ -870,7 +885,6 @@
                     }
                 });
                 console.log("[人口]++++处理后的data1:",data1);
-
                 this.$nextTick(() => {
                     //辖区概况-人口
                     let echarts = require('echarts');
@@ -961,24 +975,16 @@
             },
             //绑定房屋数据
             async bindfw() {
-
                 let data1 = [0, 0, 0];
-
-
-               //调用房屋
+                //调用房屋
                 data1=[];
                 let {data:fwdata} = await index.fetchData_get(Api.dpzj.fw,
                          {"orgcode":this.orgid});
                 let datalist=fwdata;
-
-
-
                 data1.push(datalist[0].fw);
                 data1.push(datalist[0].wf);
                 data1.push(datalist[0].czf);
-
                 console.log("[房屋]++++++++++data1:",data1);
-
                 this.$nextTick(() => {
                     //辖区概况-人口
                     let echarts = require('echarts');
@@ -1051,9 +1057,7 @@
             //绑定企业数据
             async bindqy() {
                 let data1 = [0, 0, 0];
-
-
-               // 调用企业
+                // 调用企业
                 data1=[];
                 let {data:qydata} = await index.fetchData_get(Api.dpzj.qy,
                               {"orgcode":this.orgid});
@@ -1061,9 +1065,7 @@
                 data1.push(datalist[0].sszt);
                 data1.push(datalist[0].jgdw);
                 data1.push(datalist[0].shzt);
-
                 console.log("[企业]++++++++++data1:",data1);
-
                 this.$nextTick(() => {
                     //辖区概况-人口
                     let echarts = require('echarts');
@@ -1135,7 +1137,6 @@
             },
             //绑定网格数据
             async bindwg(){
-
                 //调用网格数据接口
                 let {data:wgdata} = await index.fetchData_get(Api.dpzj.wg,
                               {"orgcode":this.orgid});
@@ -1143,16 +1144,12 @@
                 this.wg.zxwg=datalist[0].zxwgs;
                 this.wg.fzxwg=datalist[0].fzxwgs;
                 this.wg.wgsum=datalist[0].wgysl;
-
                 this.wgyN=datalist[0].male===null?0:datalist[0].male;
                 this.wgyV=datalist[0].female===null?0:datalist[0].female;
             },
             //绑定镇街考核
             async bindStreetkh() {
-
                 let data1 = [60, 73, 85, 40, 90];
-
-
                 data1=[]
                 let {data:wxzbdata} = await index.fetchData_get(Api.dpzj.wxzb,
                               {"orgcode":this.orgid});
@@ -1634,7 +1631,21 @@
                 console.log("+++++++++++++MarkerList:",MarkerList);
 
                 //用于测试
-                this.$refs.tiandt.setmarker(MarkerList);
+                setTimeout(()=>{
+                    this.$refs.tiandt.setmarker(MarkerList);
+                },100);
+
+            },
+            //最新事件详情弹出框
+            showNeventinfo(id){
+
+                this.Neweventinfoshow=true;
+                setTimeout(()=>{
+                    //设置子组件areacode
+                    this.$refs.eventinfo.setareacode(this.orgid);
+                    //调用子组件事件详情绑定方法
+                    this.$refs.eventinfo.bindeventinfo(id);
+                },100);
             },
             //点击待办事件弹出框
             showdbsj(){
@@ -1670,12 +1681,6 @@
                 this.infourl="";
                 this.infourl="http://10.19.181.153/grid/notice/f.show?id="+id+"&random="+Math.floor(Math.random()*450001);
             },
-            //显示事件详情
-            showeventinfo(obj){
-                this.eventinfourl="";
-                this.eventinfourl="http://10.68.129.154:8119/pages/ZJDPEventDetail.html?id="+obj+"&isShow=1&areaCode="+this.orgid+"&random="+Math.floor(Math.random()*450001)+"";
-                this.eventinfoshow=true;
-            },
             //关闭事件详情弹出框
             cleareventinfo(){
                 this.eventinfourl="";
@@ -1700,32 +1705,100 @@
     }
 </script>
 <style>
-    .el-dialog{
-        display: flex;
-        flex-direction: column;
-        margin:0 !important;
-        position:absolute;
-        top:50%;
-        left:50%;
-        transform:translate(-50%,-50%);
-        /*height:600px;*/
-        max-height:calc(100% - 30px);
-        max-width:calc(100% - 30px);
 
+    input::-webkit-input-placeholder{
+        color:red;
+    }
+    input::-moz-placeholder{   /* Mozilla Firefox 19+ */
+        color:red;
+    }
+    input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
+        color:red;
+    }
+    input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
+        color:red;
     }
 
-    .el-table{
-        font-size: 0.9rem !important;
+
+    /*elementui库·-个性化设置*/
+    .el-input__inner::-webkit-input-placeholder{
+        color:red !important;
+    }
+    .el-input__inner::-moz-placeholder{
+        color:red !important;
+    }
+    .el-input__inner::-moz-placeholder{
+        color:red !important;
+    }
+    .el-input__inner::-ms-input-placeholder{
+        color:red !important;
     }
 
+
+    .el-tabs__nav{
+        margin-left: 94px !important;
+    }
     .el-dialog, .el-page li{
         background-color: #2c3e50 !important;
+    }
+    .icon_menu:hover{
+        box-shadow: 15px 15px 14px rgba(50,50,50,0.4);
+        transform: rotate(0deg) scale(1.2);
+        -webkit-transform: rotate(0deg) scale(1.2);
+        -moz-transform: rotate(0deg) scale(1.2);
+        z-index: 2;
+    }
+    .el-tag{
+        margin-right: 10px;
+    }
+    /*.el-card{
+      width:300px;
+      float:left;
+      margin: 9px;
+      opacity: 0.9;
+    }*/
+    .el-card{
+        margin: 9px;
+        border:none !important;
+        background-color: inherit !important;
+        float:left;
+    }
+    .el-divider--horizontal{
+        margin: 17px 0 !important;
+    }
+    .el-divider__text{
+        padding: 5px 20px !important;
+    }
+    .el-tag--warning{
+        background-color: inherit !important;
+        color:#f7ba2a !important;
+        font-weight: bolder;
+        font-size: 14px !important;
+    }
+    .el-divider__text{
+        background-color: #2c3e50 !important;
+        color:white !important;
+    }
+    .el-tabs__item{
+        color:white !important;
+        padding: 0 10px !important;
+        margin-right: 0px !important;
+    }
+    .el-tabs__item.is-active{
+        color:black !important;
+        background-color: white;
     }
     .el-dialog__title{
         color:white !important;
     }
     .el-dialog__body{
         padding: 10px 10px !important;
+    }
+    .el-timeline-item{
+        padding-bottom: 10px !important;
+    }
+    .viewer-title{
+        font-size:26px !important;
     }
 </style>
 <style lang="scss" scoped>

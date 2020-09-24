@@ -1,11 +1,14 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import index from "../views/index.vue";
-
-
 Vue.use(VueRouter);
 
 const routes = [
+  {
+    path: "/:orgid",
+    name: "index",
+    component: index
+  },
   {
     path: "/index/:orgid",
     name: "index",
@@ -18,6 +21,10 @@ const routes = [
   {
     path: '/Tiandt_new',
     component: ()=> import("../components/tiandt_new.vue")
+  },
+  {
+    path: '/eventinfo',
+    component: ()=> import("../components/eventinfo.vue")
   },
   {
     path: '/404',
