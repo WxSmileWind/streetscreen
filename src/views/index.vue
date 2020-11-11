@@ -101,7 +101,7 @@
                 </div>
             </div>
             <!--日常考核-->
-            <div class="l_rckh">
+            <div class="l_rckh">  
                 <div class="title">
                     <img src="../assets/imgs/icon.png" class="icon"/>&nbsp;
                     <span class="icon_title" style="">日常工作</span>
