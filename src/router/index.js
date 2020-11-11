@@ -5,11 +5,6 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/:orgid",
-    name: "index",
-    component: index
-  },
-  {
     path: "/index/:orgid",
     name: "index",
     component: index

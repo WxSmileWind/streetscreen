@@ -223,13 +223,13 @@
 
     }
     .el-card{
-        background-color: #1e244c;
+        background-color: #1e244c !important;
         color:#bcbed0 !important;
         border-color:#5f5454;
         //border-radius: 5vh;
     }
     .el-carousel__arrow {
-        background-color: rgb(30, 36, 76);
+        background-color: rgb(30, 36, 76) !important;
         color: #f9f9f9;
     }
 </style>
@@ -303,7 +303,7 @@
     }
     .el-card:hover{
         //margin-top: -5px;
-        background-color: #424a84;
+        background-color: #424a84 !important;
     }
 
 

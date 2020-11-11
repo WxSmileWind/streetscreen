@@ -17,7 +17,7 @@ service.interceptors.request.use(
         // config.headers="{'Content-Type':'application/x-www-form-urlencoded'}";
         // config.baseURL="http://124.202.145.102:8097/wastesort/";
 
-        //console.log("-----config:",config);
+
         //console.log("-----config.data:",config.data);
         if (config.method === 'post') {
             //普通post请求参数处理
@@ -39,6 +39,29 @@ service.interceptors.request.use(
         else if(config.method === 'get'){
             config.method ='get';
             config.baseURL='';
+
+            if(config.url.indexOf('ForwardFun')>0){
+
+                let urlparams="";
+                if(config.params!==null){
+                    //console.log("[params]++++++++++:",config.params);
+
+                    for(let key in config.params){
+                        //console.log(key+":"+config.params[key]);
+                        urlparams+="|"+key+"="+config.params[key];
+                    }
+                    config.url=config.url+urlparams;
+                    config.params=null;
+                }
+            }
+
+
+
+            // console.log("[替换前request]-----config:",config);
+            // config.url=config.url.replace('?','|').replace('&','|');
+            // console.log("[替换后request]-----config:",config);
+
+
         }else if(config.method === 'get_cross'){
             config.method ='get';
             config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild';
@@ -55,11 +78,31 @@ service.interceptors.request.use(
 // 添加响应拦截器
 service.interceptors.response.use(
     response => {
+
        // console.log();
 
        // console.log("+++++++++++++response:",JSON.stringify(response));
         console.log("+++++++++++++response.config.url:",response.config.url);
-        if(response.config.url.indexOf('GetVideoUrlPath')>0||response.config.url.indexOf('GetVideoNearXYCOND')>0||response.config.url.indexOf('GetCurEventADetail')>0||response.config.url.indexOf('GetDingTalkVideo')>0){
+        if(response.config.url.indexOf('GetVideoUrlPath')>0
+            ||response.config.url.indexOf('GetVideoNearXYCOND')>0
+            ||response.config.url.indexOf('GetEventTypeData')>0
+            ||response.config.url.indexOf('GetCurEventADetail')>0
+            ||response.config.url.indexOf('GetDingTalkVideo')>0
+            ||response.config.url.indexOf('GetZHZXInfo')>0
+            ||response.config.url.indexOf('AddUserLogInfo')>0
+            ||response.config.url.indexOf('GetThemeStatic')>0
+            ||response.config.url.indexOf('GetZHZXOrguid')>0
+            ||response.config.url.indexOf('getOrgByUserId')>0
+            ||response.config.url.indexOf('rctx')>0
+            ||response.config.url.indexOf('GetRemindAllData')>0
+            ||response.config.url.indexOf('gridPpl')>0
+            ||response.config.url.indexOf('GetZJDPWGInfo')>0//网格分布情况
+            ||response.config.url.indexOf('AddUserLogoutInfo')>0//登录登出日志
+            ||response.config.url.indexOf('AddUserOptInfo')>0//操作日志
+            ||response.config.url.indexOf('jsmap_xianshi')>0//县
+            ||response.config.url.indexOf('jsmap_jiedao')>0//街道
+        )
+        {
             return response.data;
         }
         else{
